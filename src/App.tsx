@@ -1,29 +1,31 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { ChevronRight, RotateCcw, Sparkles, AlertCircle, User, Heart, Download, Camera, Loader2, Trophy, LogIn, LogOut, MessageSquare, Send } from 'lucide-react';
+import { ChevronRight, RotateCcw, Sparkles, AlertCircle, User, Heart, Download, Camera, Loader2, Trophy, MessageSquare, Send, UserCircle } from 'lucide-react';
 import { toPng } from 'html-to-image';
 import { GoogleGenAI } from "@google/genai";
+import { io, Socket } from 'socket.io-client';
 import { QUESTIONS, RESULTS } from './constants';
 import { Category } from './types';
-import { auth, loginWithGoogle, loginAsGuest, logout, saveResult, subscribeToLeaderboard, sendMessage, subscribeToChat } from './firebase';
-import { onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
+
+// Initialize socket
+const socket: Socket = io();
 
 export default function App() {
   const [currentStep, setCurrentStep] = useState<'start' | 'quiz' | 'result' | 'leaderboard' | 'chat'>('start');
-  const [user, setUser] = useState<FirebaseUser | null>(null);
-  const [showLoginModal, setShowLoginModal] = useState(false);
-  const [guestName, setGuestName] = useState('');
-  const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [leaderboard, setLeaderboard] = useState<any[]>([]);
   const [messages, setMessages] = useState<any[]>([]);
   const [newMessage, setNewMessage] = useState('');
-  const [isSaving, setIsSaving] = useState(false);
-  const chatEndRef = useRef<HTMLDivElement>(null);
+  const [userName, setUserName] = useState<string>(() => localStorage.getItem('user_name') || 'Anonymous');
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [tempName, setTempName] = useState(userName);
+  
   const [questionIndex, setQuestionIndex] = useState(0);
   const [isExporting, setIsExporting] = useState(false);
   const [isGeneratingImage, setIsGeneratingImage] = useState(false);
   const [generatedImageUrl, setGeneratedImageUrl] = useState<string | null>(null);
   const resultRef = useRef<HTMLDivElement>(null);
+  const chatEndRef = useRef<HTMLDivElement>(null);
+  
   const [scores, setScores] = useState<Record<Category, number>>({
     femboy: 0,
     femgirl: 0,
@@ -33,6 +35,50 @@ export default function App() {
     jujur_cowok: 0
   });
   const [shuffledQuestions, setShuffledQuestions] = useState(QUESTIONS);
+
+  // Socket listeners
+  useEffect(() => {
+    socket.on('init_messages', (initialMessages) => setMessages(initialMessages));
+    socket.on('init_leaderboard', (initialLeaderboard) => setLeaderboard(initialLeaderboard));
+    socket.on('new_message', (msg) => setMessages(prev => [...prev.slice(-49), msg]));
+    socket.on('update_leaderboard', (updatedLeaderboard) => setLeaderboard(updatedLeaderboard));
+
+    return () => {
+      socket.off('init_messages');
+      socket.off('init_leaderboard');
+      socket.off('new_message');
+      socket.off('update_leaderboard');
+    };
+  }, []);
+
+  useEffect(() => {
+    if (chatEndRef.current) {
+      chatEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [messages]);
+
+  const handleSendMessage = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newMessage.trim()) return;
+
+    const msg = {
+      text: newMessage.trim(),
+      userName: userName,
+      photoURL: `https://api.dicebear.com/7.x/avataaars/svg?seed=${userName}`,
+    };
+
+    socket.emit('send_message', msg);
+    setNewMessage('');
+  };
+
+  const handleSaveName = () => {
+    const trimmed = tempName.trim();
+    if (trimmed) {
+      setUserName(trimmed);
+      localStorage.setItem('user_name', trimmed);
+      setIsEditingName(false);
+    }
+  };
 
   const shuffleArray = <T,>(array: T[]): T[] => {
     const newArray = [...array];
@@ -94,7 +140,6 @@ export default function App() {
       if (url.startsWith('http')) {
         setGeneratedImageUrl(url);
         
-        // Extract source URL from grounding metadata if available
         const chunks = response.candidates?.[0]?.groundingMetadata?.groundingChunks;
         if (chunks && chunks.length > 0 && chunks[0].web) {
           setImageSourceUrl(chunks[0].web.uri);
@@ -104,7 +149,6 @@ export default function App() {
       }
     } catch (error) {
       console.error("Image search failed:", error);
-      // Fallback to static image if search fails
       setGeneratedImageUrl(result.imageUrl);
     } finally {
       setIsGeneratingImage(false);
@@ -127,7 +171,6 @@ export default function App() {
       setQuestionIndex(prev => prev + 1);
     } else {
       setCurrentStep('result');
-      // No longer auto-generating to keep it fast
     }
   };
 
@@ -175,136 +218,21 @@ export default function App() {
 
   const progress = ((questionIndex + 1) / shuffledQuestions.length) * 100;
 
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (u) => {
-      setUser(u);
-    });
-    return () => unsubscribe();
-  }, []);
-
-  useEffect(() => {
-    const unsubscribe = subscribeToLeaderboard((data) => {
-      setLeaderboard(data);
-    });
-    return () => unsubscribe();
-  }, []);
-
-  useEffect(() => {
-    const unsubscribe = subscribeToChat((data) => {
-      setMessages(data);
-    });
-    return () => unsubscribe();
-  }, []);
-
-  useEffect(() => {
-    if (chatEndRef.current) {
-      chatEndRef.current.scrollIntoView({ behavior: 'smooth' });
-    }
-  }, [messages]);
-
-  const handleSendMessage = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!user || !newMessage.trim()) return;
-    const text = newMessage.trim();
-    setNewMessage('');
-    await sendMessage(user.uid, user.displayName || 'Anonymous', user.photoURL || '', text);
-  };
-
-  const handleSaveToLeaderboard = async () => {
-    if (!user || isSaving) return;
-    setIsSaving(true);
-    try {
-      await saveResult(user.uid, user.displayName || 'Anonymous', user.photoURL || '', winner, scores);
-      setCurrentStep('leaderboard');
-    } catch (error) {
-      console.error("Failed to save result:", error);
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
-  const handleGuestLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!guestName.trim() || isLoggingIn) return;
-    setIsLoggingIn(true);
-    try {
-      await loginAsGuest(guestName.trim());
-      setShowLoginModal(false);
-    } catch (error) {
-      console.error("Guest login failed:", error);
-    } finally {
-      setIsLoggingIn(false);
-    }
+  const handleSaveToLeaderboard = () => {
+    const entry = {
+      displayName: userName,
+      photoURL: `https://api.dicebear.com/7.x/avataaars/svg?seed=${userName}`,
+      category: winner,
+      totalPoints: (Object.values(scores) as number[]).reduce((a, b) => a + b, 0),
+    };
+    
+    socket.emit('save_result', entry);
+    setCurrentStep('leaderboard');
   };
 
   return (
     <div className="min-h-screen bg-[#f5f5f5] text-[#1a1a1a] font-sans selection:bg-black selection:text-white">
-      {/* Login Modal */}
-      <AnimatePresence>
-        {showLoginModal && (
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/60 backdrop-blur-sm pointer-events-auto"
-          >
-            <motion.div 
-              initial={{ scale: 0.9, y: 20 }}
-              animate={{ scale: 1, y: 0 }}
-              exit={{ scale: 0.9, y: 20 }}
-              className="bg-white rounded-[32px] p-8 w-full max-w-sm shadow-2xl space-y-6"
-            >
-              <div className="text-center space-y-2">
-                <h3 className="text-2xl font-black tracking-tighter uppercase">Masuk</h3>
-                <p className="text-xs font-mono text-gray-400 uppercase tracking-widest">Pilih metode masuk</p>
-              </div>
-
-              <div className="space-y-4">
-                <button 
-                  onClick={() => { loginWithGoogle(); setShowLoginModal(false); }}
-                  className="w-full flex items-center justify-center gap-3 p-4 rounded-2xl border border-gray-200 hover:border-black transition-all font-bold text-sm"
-                >
-                  <img src="https://www.google.com/favicon.ico" className="w-5 h-5" alt="" />
-                  Masuk dengan Google
-                </button>
-
-                <div className="relative flex items-center py-2">
-                  <div className="flex-grow border-t border-gray-100"></div>
-                  <span className="flex-shrink mx-4 text-[10px] font-mono text-gray-300 uppercase tracking-widest">Atau</span>
-                  <div className="flex-grow border-t border-gray-100"></div>
-                </div>
-
-                <form onSubmit={handleGuestLogin} className="space-y-3">
-                  <input 
-                    type="text" 
-                    placeholder="Masukkan Nama Kamu"
-                    value={guestName}
-                    onChange={(e) => setGuestName(e.target.value)}
-                    className="w-full p-4 rounded-2xl bg-gray-50 border border-gray-100 focus:border-emerald-500 focus:outline-none transition-all text-sm font-medium"
-                    maxLength={20}
-                  />
-                  <button 
-                    type="submit"
-                    disabled={!guestName.trim() || isLoggingIn}
-                    className="w-full p-4 rounded-2xl bg-black text-white font-bold text-sm hover:bg-gray-800 transition-all disabled:opacity-50"
-                  >
-                    {isLoggingIn ? <Loader2 className="w-4 h-4 animate-spin mx-auto" /> : 'Masuk dengan Nama'}
-                  </button>
-                </form>
-              </div>
-
-              <button 
-                onClick={() => setShowLoginModal(false)}
-                className="w-full text-[10px] font-mono text-gray-400 uppercase tracking-widest hover:text-black transition-colors"
-              >
-                Batal
-              </button>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Header with Auth */}
+      {/* Header */}
       <header className="fixed top-0 left-0 right-0 p-6 flex justify-between items-center z-50 pointer-events-none">
         <div className="pointer-events-auto flex gap-2">
           <button 
@@ -320,21 +248,36 @@ export default function App() {
             <MessageSquare className="w-6 h-6 text-emerald-500" />
           </button>
         </div>
+
         <div className="pointer-events-auto">
-          {user ? (
-            <div className="flex items-center gap-3 bg-white p-1.5 pr-4 rounded-full shadow-lg">
-              <img src={user.photoURL || ''} className="w-8 h-8 rounded-full" alt="" />
-              <button onClick={logout} className="text-xs font-bold uppercase tracking-widest hover:text-red-500 transition-colors focus:outline-none">
-                <LogOut className="w-4 h-4" />
+          {isEditingName ? (
+            <div className="flex items-center gap-2 bg-white p-1 rounded-full shadow-lg">
+              <input 
+                type="text" 
+                value={tempName}
+                onChange={(e) => setTempName(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleSaveName()}
+                className="bg-transparent px-4 py-1 text-xs font-bold focus:outline-none w-32"
+                autoFocus
+                maxLength={15}
+              />
+              <button 
+                onClick={handleSaveName}
+                className="bg-black text-white px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest"
+              >
+                Save
               </button>
             </div>
           ) : (
             <button 
-              onClick={() => setShowLoginModal(true)}
-              className="flex items-center gap-2 bg-white px-4 py-2 rounded-full shadow-lg text-xs font-bold uppercase tracking-widest hover:scale-105 transition-transform focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              onClick={() => {
+                setTempName(userName);
+                setIsEditingName(true);
+              }}
+              className="flex items-center gap-2 bg-white px-4 py-2 rounded-full shadow-lg text-xs font-bold uppercase tracking-widest hover:scale-105 transition-transform"
             >
-              <LogIn className="w-4 h-4" />
-              Login
+              <UserCircle className="w-4 h-4" />
+              {userName}
             </button>
           )}
         </div>
@@ -543,23 +486,13 @@ export default function App() {
               </div>
 
               <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-4">
-                {user ? (
-                  <button
-                    onClick={handleSaveToLeaderboard}
-                    disabled={isSaving}
-                    className="w-full sm:w-auto inline-flex items-center justify-center px-8 py-4 text-sm font-bold bg-emerald-500 text-white rounded-full hover:bg-emerald-600 transition-all duration-200 disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                  >
-                    {isSaving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Trophy className="mr-2 w-4 h-4" />}
-                    Simpan ke Leaderboard
-                  </button>
-                ) : (
-                  <button
-                    onClick={() => setShowLoginModal(true)}
-                    className="w-full sm:w-auto inline-flex items-center justify-center px-8 py-4 text-sm font-bold bg-emerald-500 text-white rounded-full hover:bg-emerald-600 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                  >
-                    Login untuk Simpan Skor
-                  </button>
-                )}
+                <button
+                  onClick={handleSaveToLeaderboard}
+                  className="w-full sm:w-auto inline-flex items-center justify-center px-8 py-4 text-sm font-bold bg-emerald-500 text-white rounded-full hover:bg-emerald-600 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                >
+                  <Trophy className="mr-2 w-4 h-4" />
+                  Simpan ke Leaderboard
+                </button>
                 
                 <button
                   onClick={downloadImage}
@@ -596,14 +529,14 @@ export default function App() {
               <div className="text-center space-y-4">
                 <Trophy className="w-16 h-16 text-yellow-500 mx-auto" />
                 <h2 className="text-4xl font-black tracking-tighter uppercase">Global Leaderboard</h2>
-                <p className="text-gray-500">Hasil survey dari seluruh dunia</p>
+                <p className="text-gray-500">Hasil survey yang tersimpan sementara di server</p>
               </div>
 
               <div className="bg-white rounded-[32px] shadow-xl overflow-hidden border border-gray-100">
                 <div className="max-h-[500px] overflow-y-auto">
                   {leaderboard.length === 0 ? (
                     <div className="p-12 text-center text-gray-400 font-mono text-sm uppercase tracking-widest">
-                      Belum ada data...
+                      Belum ada data tersimpan...
                     </div>
                   ) : (
                     leaderboard.map((entry, index) => (
@@ -626,7 +559,7 @@ export default function App() {
                             {entry.totalPoints} <span className="text-[10px] uppercase text-gray-400">Pts</span>
                           </div>
                           <div className="text-[10px] font-mono text-gray-400">
-                            {entry.timestamp?.toDate().toLocaleDateString()}
+                            {new Date(entry.timestamp).toLocaleDateString()}
                           </div>
                         </div>
                       </div>
@@ -657,7 +590,7 @@ export default function App() {
               <div className="text-center space-y-2">
                 <MessageSquare className="w-12 h-12 text-emerald-500 mx-auto" />
                 <h2 className="text-4xl font-black tracking-tighter uppercase">Global Chat</h2>
-                <p className="text-xs font-mono text-gray-400 uppercase tracking-widest">Maksimal 34 pesan terakhir</p>
+                <p className="text-xs font-mono text-gray-400 uppercase tracking-widest">Obrolan langsung tanpa database</p>
               </div>
 
               <div className="flex-1 bg-white rounded-[32px] shadow-xl overflow-hidden border border-gray-100 flex flex-col">
@@ -670,12 +603,12 @@ export default function App() {
                     messages.map((msg) => (
                       <div 
                         key={msg.id} 
-                        className={`flex gap-3 ${msg.userId === user?.uid ? 'flex-row-reverse' : ''}`}
+                        className={`flex gap-3 ${msg.userName === userName ? 'flex-row-reverse' : ''}`}
                       >
                         <img src={msg.photoURL} className="w-8 h-8 rounded-full shadow-sm" alt="" />
-                        <div className={`max-w-[80%] space-y-1 ${msg.userId === user?.uid ? 'items-end' : ''}`}>
-                          <div className="text-[10px] font-bold text-gray-400 px-1">{msg.displayName}</div>
-                          <div className={`p-3 rounded-2xl text-sm ${msg.userId === user?.uid ? 'bg-emerald-500 text-white rounded-tr-none' : 'bg-gray-100 text-gray-800 rounded-tl-none'}`}>
+                        <div className={`max-w-[80%] space-y-1 ${msg.userName === userName ? 'items-end' : ''}`}>
+                          <div className="text-[10px] font-bold text-gray-400 px-1">{msg.userName}</div>
+                          <div className={`p-3 rounded-2xl text-sm ${msg.userName === userName ? 'bg-emerald-500 text-white rounded-tr-none' : 'bg-gray-100 text-gray-800 rounded-tl-none'}`}>
                             {msg.text}
                           </div>
                         </div>
@@ -686,30 +619,22 @@ export default function App() {
                 </div>
 
                 <div className="p-4 border-t border-gray-50 bg-gray-50/50">
-                  {user ? (
-                    <form onSubmit={handleSendMessage} className="flex gap-2">
-                      <input 
-                        type="text" 
-                        value={newMessage}
-                        onChange={(e) => setNewMessage(e.target.value)}
-                        placeholder="Ketik pesan..."
-                        className="flex-1 bg-white border border-gray-200 rounded-full px-6 py-3 text-sm focus:outline-none focus:border-emerald-500 transition-colors"
-                      />
-                      <button 
-                        type="submit"
-                        className="p-3 bg-emerald-500 text-white rounded-full hover:bg-emerald-600 transition-colors shadow-md focus:outline-none"
-                      >
-                        <Send className="w-5 h-5" />
-                      </button>
-                    </form>
-                  ) : (
+                  <form onSubmit={handleSendMessage} className="flex gap-2">
+                    <input 
+                      type="text" 
+                      value={newMessage}
+                      onChange={(e) => setNewMessage(e.target.value)}
+                      placeholder="Ketik pesan..."
+                      className="flex-1 bg-white border border-gray-200 rounded-full px-6 py-3 text-sm focus:outline-none focus:border-emerald-500 transition-colors"
+                    />
                     <button 
-                      onClick={() => setShowLoginModal(true)}
-                      className="w-full py-3 bg-white border border-gray-200 rounded-full text-xs font-bold uppercase tracking-widest text-gray-500 hover:bg-gray-50 transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                      type="submit"
+                      disabled={!newMessage.trim()}
+                      className="p-3 bg-emerald-500 text-white rounded-full hover:bg-emerald-600 transition-colors shadow-md focus:outline-none disabled:opacity-50"
                     >
-                      Login untuk mengobrol
+                      <Send className="w-5 h-5" />
                     </button>
-                  )}
+                  </form>
                 </div>
               </div>
 
