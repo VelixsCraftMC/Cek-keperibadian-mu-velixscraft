@@ -1,4 +1,4 @@
-export type Category = 'femboy' | 'femgirl' | 'normal' | 'abnormal';
+export type Category = 'femboy' | 'femgirl' | 'normal' | 'abnormal' | 'jujur_cewek' | 'jujur_cowok';
 
 export interface Answer {
   text: string;

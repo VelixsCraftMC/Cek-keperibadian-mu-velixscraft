@@ -17,7 +17,9 @@ export default function App() {
     femboy: 0,
     femgirl: 0,
     normal: 0,
-    abnormal: 0
+    abnormal: 0,
+    jujur_cewek: 0,
+    jujur_cowok: 0
   });
   const [shuffledQuestions, setShuffledQuestions] = useState(QUESTIONS);
 
@@ -57,8 +59,13 @@ export default function App() {
     try {
       const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! });
       
-      const isFemale = category === 'femboy' || category === 'femgirl';
-      const trait = category === 'femboy' ? 'cute' : category === 'femgirl' ? 'elegant' : category === 'normal' ? 'cool sigma' : 'mysterious unique';
+      const isFemale = category === 'femboy' || category === 'femgirl' || category === 'jujur_cewek';
+      const trait = category === 'femboy' ? 'cute' : 
+                    category === 'femgirl' ? 'elegant' : 
+                    category === 'normal' ? 'cool sigma' : 
+                    category === 'jujur_cewek' ? 'honest sweet' :
+                    category === 'jujur_cowok' ? 'honest gentleman' :
+                    'mysterious unique';
       
       const prompt = `Search Google for a high-quality direct image URL of a ${trait} anime ${isFemale ? 'girl' : 'boy'} character. 
       The URL MUST be a direct link to an image file (ending in .jpg, .png, or .webp). 
@@ -98,7 +105,9 @@ export default function App() {
       femboy: scores.femboy + answerScores.femboy,
       femgirl: scores.femgirl + answerScores.femgirl,
       normal: scores.normal + answerScores.normal,
-      abnormal: scores.abnormal + answerScores.abnormal
+      abnormal: scores.abnormal + answerScores.abnormal,
+      jujur_cewek: scores.jujur_cewek + (answerScores.jujur_cewek || 0),
+      jujur_cowok: scores.jujur_cowok + (answerScores.jujur_cowok || 0)
     };
     
     setScores(newScores);
@@ -112,7 +121,14 @@ export default function App() {
   };
 
   const resetQuiz = () => {
-    setScores({ femboy: 0, femgirl: 0, normal: 0, abnormal: 0 });
+    setScores({ 
+      femboy: 0, 
+      femgirl: 0, 
+      normal: 0, 
+      abnormal: 0,
+      jujur_cewek: 0,
+      jujur_cowok: 0
+    });
     setQuestionIndex(0);
     setGeneratedImageUrl(null);
     setImageSourceUrl(null);
@@ -168,7 +184,7 @@ export default function App() {
                 <span className="text-blue-500 italic">KATA HATI</span>
               </h1>
               <p className="text-xl text-gray-500 max-w-md mx-auto">
-                Temukan kategori kepribadian unikmu melalui 12 pertanyaan sederhana.
+                Temukan kategori kepribadian unikmu melalui 16 pertanyaan sederhana.
               </p>
               <button
                 onClick={startQuiz}
@@ -281,6 +297,8 @@ export default function App() {
                         {result.category === 'femgirl' && <Sparkles className="w-6 h-6" />}
                         {result.category === 'normal' && <User className="w-6 h-6" />}
                         {result.category === 'abnormal' && <AlertCircle className="w-6 h-6" />}
+                        {result.category === 'jujur_cewek' && <Heart className="w-6 h-6" />}
+                        {result.category === 'jujur_cowok' && <User className="w-6 h-6" />}
                       </div>
                       <h3 className="text-xs font-mono text-gray-400 uppercase tracking-widest">
                         Hasil Analisis Kamu
