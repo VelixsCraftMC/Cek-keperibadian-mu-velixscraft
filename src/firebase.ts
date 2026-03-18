@@ -1,5 +1,5 @@
 import { initializeApp } from 'firebase/app';
-import { getAuth, GoogleAuthProvider, signInWithPopup, signOut } from 'firebase/auth';
+import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, signInAnonymously, updateProfile } from 'firebase/auth';
 import { getFirestore, collection, addDoc, query, orderBy, limit, onSnapshot, serverTimestamp, getDocs, deleteDoc, doc } from 'firebase/firestore';
 import firebaseConfig from '../firebase-applet-config.json';
 
@@ -11,6 +11,14 @@ export const googleProvider = new GoogleAuthProvider();
 
 // Auth helpers
 export const loginWithGoogle = () => signInWithPopup(auth, googleProvider);
+export const loginAsGuest = async (name: string) => {
+  const { user } = await signInAnonymously(auth);
+  await updateProfile(user, {
+    displayName: name,
+    photoURL: `https://api.dicebear.com/7.x/avataaars/svg?seed=${name}`
+  });
+  return user;
+};
 export const logout = () => signOut(auth);
 
 // Firestore helpers

@@ -1,16 +1,19 @@
-import { useState, useMemo, useRef, useEffect } from 'react';
+import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ChevronRight, RotateCcw, Sparkles, AlertCircle, User, Heart, Download, Camera, Loader2, Trophy, LogIn, LogOut, MessageSquare, Send } from 'lucide-react';
 import { toPng } from 'html-to-image';
 import { GoogleGenAI } from "@google/genai";
 import { QUESTIONS, RESULTS } from './constants';
 import { Category } from './types';
-import { auth, loginWithGoogle, logout, saveResult, subscribeToLeaderboard, sendMessage, subscribeToChat } from './firebase';
+import { auth, loginWithGoogle, loginAsGuest, logout, saveResult, subscribeToLeaderboard, sendMessage, subscribeToChat } from './firebase';
 import { onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
 
 export default function App() {
   const [currentStep, setCurrentStep] = useState<'start' | 'quiz' | 'result' | 'leaderboard' | 'chat'>('start');
   const [user, setUser] = useState<FirebaseUser | null>(null);
+  const [showLoginModal, setShowLoginModal] = useState(false);
+  const [guestName, setGuestName] = useState('');
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [leaderboard, setLeaderboard] = useState<any[]>([]);
   const [messages, setMessages] = useState<any[]>([]);
   const [newMessage, setNewMessage] = useState('');
@@ -220,36 +223,115 @@ export default function App() {
     }
   };
 
+  const handleGuestLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!guestName.trim() || isLoggingIn) return;
+    setIsLoggingIn(true);
+    try {
+      await loginAsGuest(guestName.trim());
+      setShowLoginModal(false);
+    } catch (error) {
+      console.error("Guest login failed:", error);
+    } finally {
+      setIsLoggingIn(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-[#f5f5f5] text-[#1a1a1a] font-sans selection:bg-black selection:text-white">
+      {/* Login Modal */}
+      <AnimatePresence>
+        {showLoginModal && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/60 backdrop-blur-sm pointer-events-auto"
+          >
+            <motion.div 
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.9, y: 20 }}
+              className="bg-white rounded-[32px] p-8 w-full max-w-sm shadow-2xl space-y-6"
+            >
+              <div className="text-center space-y-2">
+                <h3 className="text-2xl font-black tracking-tighter uppercase">Masuk</h3>
+                <p className="text-xs font-mono text-gray-400 uppercase tracking-widest">Pilih metode masuk</p>
+              </div>
+
+              <div className="space-y-4">
+                <button 
+                  onClick={() => { loginWithGoogle(); setShowLoginModal(false); }}
+                  className="w-full flex items-center justify-center gap-3 p-4 rounded-2xl border border-gray-200 hover:border-black transition-all font-bold text-sm"
+                >
+                  <img src="https://www.google.com/favicon.ico" className="w-5 h-5" alt="" />
+                  Masuk dengan Google
+                </button>
+
+                <div className="relative flex items-center py-2">
+                  <div className="flex-grow border-t border-gray-100"></div>
+                  <span className="flex-shrink mx-4 text-[10px] font-mono text-gray-300 uppercase tracking-widest">Atau</span>
+                  <div className="flex-grow border-t border-gray-100"></div>
+                </div>
+
+                <form onSubmit={handleGuestLogin} className="space-y-3">
+                  <input 
+                    type="text" 
+                    placeholder="Masukkan Nama Kamu"
+                    value={guestName}
+                    onChange={(e) => setGuestName(e.target.value)}
+                    className="w-full p-4 rounded-2xl bg-gray-50 border border-gray-100 focus:border-emerald-500 focus:outline-none transition-all text-sm font-medium"
+                    maxLength={20}
+                  />
+                  <button 
+                    type="submit"
+                    disabled={!guestName.trim() || isLoggingIn}
+                    className="w-full p-4 rounded-2xl bg-black text-white font-bold text-sm hover:bg-gray-800 transition-all disabled:opacity-50"
+                  >
+                    {isLoggingIn ? <Loader2 className="w-4 h-4 animate-spin mx-auto" /> : 'Masuk dengan Nama'}
+                  </button>
+                </form>
+              </div>
+
+              <button 
+                onClick={() => setShowLoginModal(false)}
+                className="w-full text-[10px] font-mono text-gray-400 uppercase tracking-widest hover:text-black transition-colors"
+              >
+                Batal
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Header with Auth */}
       <header className="fixed top-0 left-0 right-0 p-6 flex justify-between items-center z-50 pointer-events-none">
         <div className="pointer-events-auto flex gap-2">
           <button 
             onClick={() => setCurrentStep('leaderboard')}
-            className="p-3 rounded-full bg-white shadow-lg hover:scale-110 transition-transform"
+            className="p-3 rounded-full bg-white shadow-lg hover:scale-110 transition-transform focus:outline-none focus:ring-2 focus:ring-emerald-500"
           >
             <Trophy className="w-6 h-6 text-yellow-500" />
           </button>
           <button 
             onClick={() => setCurrentStep('chat')}
-            className="p-3 rounded-full bg-white shadow-lg hover:scale-110 transition-transform"
+            className="p-3 rounded-full bg-white shadow-lg hover:scale-110 transition-transform focus:outline-none focus:ring-2 focus:ring-emerald-500"
           >
-            <MessageSquare className="w-6 h-6 text-blue-500" />
+            <MessageSquare className="w-6 h-6 text-emerald-500" />
           </button>
         </div>
         <div className="pointer-events-auto">
           {user ? (
             <div className="flex items-center gap-3 bg-white p-1.5 pr-4 rounded-full shadow-lg">
               <img src={user.photoURL || ''} className="w-8 h-8 rounded-full" alt="" />
-              <button onClick={logout} className="text-xs font-bold uppercase tracking-widest hover:text-red-500 transition-colors">
+              <button onClick={logout} className="text-xs font-bold uppercase tracking-widest hover:text-red-500 transition-colors focus:outline-none">
                 <LogOut className="w-4 h-4" />
               </button>
             </div>
           ) : (
             <button 
-              onClick={loginWithGoogle}
-              className="flex items-center gap-2 bg-white px-4 py-2 rounded-full shadow-lg text-xs font-bold uppercase tracking-widest hover:scale-105 transition-transform"
+              onClick={() => setShowLoginModal(true)}
+              className="flex items-center gap-2 bg-white px-4 py-2 rounded-full shadow-lg text-xs font-bold uppercase tracking-widest hover:scale-105 transition-transform focus:outline-none focus:ring-2 focus:ring-emerald-500"
             >
               <LogIn className="w-4 h-4" />
               Login
@@ -269,11 +351,11 @@ export default function App() {
               className="space-y-8 text-center"
             >
               <div className="inline-block p-4 rounded-full bg-white shadow-sm mb-4">
-                <Sparkles className="w-12 h-12 text-blue-500" />
+                <Sparkles className="w-12 h-12 text-emerald-500" />
               </div>
               <h1 className="text-5xl md:text-7xl font-bold tracking-tighter leading-none">
                 SURVEY <br />
-                <span className="text-blue-500 italic">KATA HATI</span>
+                <span className="text-emerald-500 italic">KATA HATI</span>
               </h1>
               <p className="text-xl text-gray-500 max-w-md mx-auto">
                 Temukan kategori kepribadian unikmu melalui 16 pertanyaan sederhana.
@@ -301,13 +383,13 @@ export default function App() {
                   <span className="text-sm font-mono text-gray-400 uppercase tracking-widest">
                     Pertanyaan {questionIndex + 1} / {shuffledQuestions.length}
                   </span>
-                  <span className="text-xs font-bold text-blue-500">
+                  <span className="text-xs font-bold text-emerald-500">
                     {Math.round(progress)}%
                   </span>
                 </div>
                 <div className="h-1 w-full bg-gray-200 rounded-full overflow-hidden">
                   <motion.div
-                    className="h-full bg-blue-500"
+                    className="h-full bg-emerald-500"
                     initial={{ width: 0 }}
                     animate={{ width: `${progress}%` }}
                   />
@@ -366,7 +448,7 @@ export default function App() {
                     
                     {isGeneratingImage && (
                       <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-white/50 backdrop-blur-sm">
-                        <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
+                        <Loader2 className="w-8 h-8 text-emerald-500 animate-spin" />
                         <span className="text-[10px] font-mono text-gray-600 uppercase tracking-widest font-bold">Searching...</span>
                       </div>
                     )}
@@ -408,7 +490,7 @@ export default function App() {
                         href={imageSourceUrl} 
                         target="_blank" 
                         rel="noopener noreferrer"
-                        className="inline-flex items-center text-[10px] font-mono text-blue-500 hover:underline uppercase tracking-widest"
+                        className="inline-flex items-center text-[10px] font-mono text-emerald-500 hover:underline uppercase tracking-widest"
                       >
                         Source: {new URL(imageSourceUrl).hostname}
                       </a>
@@ -417,7 +499,7 @@ export default function App() {
                     {!generatedImageUrl && !isGeneratingImage && (
                       <button
                         onClick={() => generateAnimeImage(winner)}
-                        className="inline-flex items-center text-xs font-bold text-blue-500 hover:text-blue-600 transition-colors uppercase tracking-widest"
+                        className="inline-flex items-center text-xs font-bold text-emerald-500 hover:text-emerald-600 transition-colors uppercase tracking-widest"
                       >
                         <Sparkles className="mr-1.5 w-3.5 h-3.5" />
                         Cari Karakter di Google
@@ -465,15 +547,15 @@ export default function App() {
                   <button
                     onClick={handleSaveToLeaderboard}
                     disabled={isSaving}
-                    className="w-full sm:w-auto inline-flex items-center justify-center px-8 py-4 text-sm font-bold bg-blue-500 text-white rounded-full hover:bg-blue-600 transition-all duration-200 disabled:opacity-50"
+                    className="w-full sm:w-auto inline-flex items-center justify-center px-8 py-4 text-sm font-bold bg-emerald-500 text-white rounded-full hover:bg-emerald-600 transition-all duration-200 disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-emerald-500"
                   >
                     {isSaving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Trophy className="mr-2 w-4 h-4" />}
                     Simpan ke Leaderboard
                   </button>
                 ) : (
                   <button
-                    onClick={loginWithGoogle}
-                    className="w-full sm:w-auto inline-flex items-center justify-center px-8 py-4 text-sm font-bold bg-blue-500 text-white rounded-full hover:bg-blue-600 transition-all duration-200"
+                    onClick={() => setShowLoginModal(true)}
+                    className="w-full sm:w-auto inline-flex items-center justify-center px-8 py-4 text-sm font-bold bg-emerald-500 text-white rounded-full hover:bg-emerald-600 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-emerald-500"
                   >
                     Login untuk Simpan Skor
                   </button>
@@ -540,7 +622,7 @@ export default function App() {
                           </span>
                         </div>
                         <div className="text-right">
-                          <div className="text-xl font-black tracking-tighter text-blue-500">
+                          <div className="text-xl font-black tracking-tighter text-emerald-500">
                             {entry.totalPoints} <span className="text-[10px] uppercase text-gray-400">Pts</span>
                           </div>
                           <div className="text-[10px] font-mono text-gray-400">
@@ -573,7 +655,7 @@ export default function App() {
               className="space-y-8 h-[70vh] flex flex-col"
             >
               <div className="text-center space-y-2">
-                <MessageSquare className="w-12 h-12 text-blue-500 mx-auto" />
+                <MessageSquare className="w-12 h-12 text-emerald-500 mx-auto" />
                 <h2 className="text-4xl font-black tracking-tighter uppercase">Global Chat</h2>
                 <p className="text-xs font-mono text-gray-400 uppercase tracking-widest">Maksimal 34 pesan terakhir</p>
               </div>
@@ -593,7 +675,7 @@ export default function App() {
                         <img src={msg.photoURL} className="w-8 h-8 rounded-full shadow-sm" alt="" />
                         <div className={`max-w-[80%] space-y-1 ${msg.userId === user?.uid ? 'items-end' : ''}`}>
                           <div className="text-[10px] font-bold text-gray-400 px-1">{msg.displayName}</div>
-                          <div className={`p-3 rounded-2xl text-sm ${msg.userId === user?.uid ? 'bg-blue-500 text-white rounded-tr-none' : 'bg-gray-100 text-gray-800 rounded-tl-none'}`}>
+                          <div className={`p-3 rounded-2xl text-sm ${msg.userId === user?.uid ? 'bg-emerald-500 text-white rounded-tr-none' : 'bg-gray-100 text-gray-800 rounded-tl-none'}`}>
                             {msg.text}
                           </div>
                         </div>
@@ -611,19 +693,19 @@ export default function App() {
                         value={newMessage}
                         onChange={(e) => setNewMessage(e.target.value)}
                         placeholder="Ketik pesan..."
-                        className="flex-1 bg-white border border-gray-200 rounded-full px-6 py-3 text-sm focus:outline-none focus:border-blue-500 transition-colors"
+                        className="flex-1 bg-white border border-gray-200 rounded-full px-6 py-3 text-sm focus:outline-none focus:border-emerald-500 transition-colors"
                       />
                       <button 
                         type="submit"
-                        className="p-3 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition-colors shadow-md"
+                        className="p-3 bg-emerald-500 text-white rounded-full hover:bg-emerald-600 transition-colors shadow-md focus:outline-none"
                       >
                         <Send className="w-5 h-5" />
                       </button>
                     </form>
                   ) : (
                     <button 
-                      onClick={loginWithGoogle}
-                      className="w-full py-3 bg-white border border-gray-200 rounded-full text-xs font-bold uppercase tracking-widest text-gray-500 hover:bg-gray-50 transition-colors"
+                      onClick={() => setShowLoginModal(true)}
+                      className="w-full py-3 bg-white border border-gray-200 rounded-full text-xs font-bold uppercase tracking-widest text-gray-500 hover:bg-gray-50 transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500"
                     >
                       Login untuk mengobrol
                     </button>
