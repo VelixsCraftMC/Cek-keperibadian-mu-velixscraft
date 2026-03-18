@@ -129,27 +129,27 @@ export const RESULTS: Record<Category, SurveyResult> = {
     title: "The Adorable Femboy",
     description: "Kamu memiliki jiwa yang sangat imut dan suka mengekspresikan sisi femininmu meskipun kamu laki-laki. Kamu suka barang-barang lucu dan perhatian!",
     color: "bg-pink-400",
-    imageUrl: "https://images.unsplash.com/photo-1578632292335-df3abbb0d586?q=80&w=1000&auto=format&fit=crop" // Anime girl style
+    imageUrl: "https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?q=80&w=1000&auto=format&fit=crop" // Cute anime style
   },
   femgirl: {
     category: 'femgirl',
     title: "The Elegant Femgirl",
     description: "Kamu sangat feminin, peduli dengan penampilan, dan memiliki aura yang anggun. Kamu suka hal-hal yang estetik dan cantik!",
     color: "bg-rose-400",
-    imageUrl: "https://images.unsplash.com/photo-1541562232579-512a21360020?q=80&w=1000&auto=format&fit=crop" // Elegant anime girl
+    imageUrl: "https://images.unsplash.com/photo-1578632292335-df3abbb0d586?q=80&w=1000&auto=format&fit=crop" // Elegant anime girl
   },
   normal: {
     category: 'normal',
     title: "The Balanced Normal",
     description: "Kamu adalah orang yang stabil dan mengikuti norma sosial dengan baik. Kamu praktis, logis, dan tidak terlalu suka hal-hal yang berlebihan.",
     color: "bg-blue-400",
-    imageUrl: "https://images.unsplash.com/photo-1618336753974-aae8e04506aa?q=80&w=1000&auto=format&fit=crop" // Sigma/Cool anime male
+    imageUrl: "https://images.unsplash.com/photo-1560972550-aba3456b5564?q=80&w=1000&auto=format&fit=crop" // Cool/Sigma anime male
   },
   abnormal: {
     category: 'abnormal',
     title: "The Chaos Abnormal",
     description: "Cara berpikirmu sangat unik, bahkan mungkin sedikit aneh bagi orang lain. Kamu tidak peduli dengan aturan dunia ini dan hidup di dimensimu sendiri!",
     color: "bg-purple-600",
-    imageUrl: "https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?q=80&w=1000&auto=format&fit=crop" // Chaotic/Unique anime style
+    imageUrl: "https://images.unsplash.com/photo-1614583225154-5feade0473c2?q=80&w=1000&auto=format&fit=crop" // Unique/Chaotic anime style
   }
 };

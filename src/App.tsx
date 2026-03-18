@@ -1,7 +1,8 @@
-import { useState, useMemo, useRef } from 'react';
+import { useState, useMemo, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { ChevronRight, RotateCcw, Sparkles, AlertCircle, User, Heart, Download, Camera } from 'lucide-react';
+import { ChevronRight, RotateCcw, Sparkles, AlertCircle, User, Heart, Download, Camera, Loader2 } from 'lucide-react';
 import { toPng } from 'html-to-image';
+import { GoogleGenAI } from "@google/genai";
 import { QUESTIONS, RESULTS } from './constants';
 import { Category } from './types';
 
@@ -9,6 +10,8 @@ export default function App() {
   const [currentStep, setCurrentStep] = useState<'start' | 'quiz' | 'result'>('start');
   const [questionIndex, setQuestionIndex] = useState(0);
   const [isExporting, setIsExporting] = useState(false);
+  const [isGeneratingImage, setIsGeneratingImage] = useState(false);
+  const [generatedImageUrl, setGeneratedImageUrl] = useState<string | null>(null);
   const resultRef = useRef<HTMLDivElement>(null);
   const [scores, setScores] = useState<Record<Category, number>>({
     femboy: 0,
@@ -16,31 +19,103 @@ export default function App() {
     normal: 0,
     abnormal: 0
   });
+  const [shuffledQuestions, setShuffledQuestions] = useState(QUESTIONS);
 
-  const handleAnswer = (answerScores: Record<Category, number>) => {
-    setScores(prev => ({
-      femboy: prev.femboy + answerScores.femboy,
-      femgirl: prev.femgirl + answerScores.femgirl,
-      normal: prev.normal + answerScores.normal,
-      abnormal: prev.abnormal + answerScores.abnormal
+  const shuffleArray = <T,>(array: T[]): T[] => {
+    const newArray = [...array];
+    for (let i = newArray.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+    }
+    return newArray;
+  };
+
+  const startQuiz = () => {
+    const newQuestions = shuffleArray(QUESTIONS).map(q => ({
+      ...q,
+      answers: shuffleArray(q.answers)
     }));
+    setShuffledQuestions(newQuestions);
+    setCurrentStep('quiz');
+  };
 
-    if (questionIndex < QUESTIONS.length - 1) {
-      setQuestionIndex(prev => prev + 1);
-    } else {
-      setCurrentStep('result');
+  const winner = useMemo(() => {
+    const categories = Object.keys(scores) as Category[];
+    return categories.reduce((a, b) => scores[a] > scores[b] ? a : b);
+  }, [scores]);
+
+  const result = useMemo(() => {
+    return RESULTS[winner];
+  }, [winner]);
+
+  const [imageSourceUrl, setImageSourceUrl] = useState<string | null>(null);
+
+  const generateAnimeImage = async (category: Category) => {
+    if (isGeneratingImage) return;
+    setIsGeneratingImage(true);
+    setImageSourceUrl(null);
+    try {
+      const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! });
+      
+      const isFemale = category === 'femboy' || category === 'femgirl';
+      const trait = category === 'femboy' ? 'cute' : category === 'femgirl' ? 'elegant' : category === 'normal' ? 'cool sigma' : 'mysterious unique';
+      
+      const prompt = `Search Google for a high-quality direct image URL of a ${trait} anime ${isFemale ? 'girl' : 'boy'} character. 
+      The URL MUST be a direct link to an image file (ending in .jpg, .png, or .webp). 
+      Return ONLY the raw URL string. Do not include any other text or markdown.`;
+
+      const response = await ai.models.generateContent({
+        model: 'gemini-3-flash-preview',
+        contents: [{ parts: [{ text: prompt }] }],
+        config: {
+          tools: [{ googleSearch: {} }],
+        },
+      });
+
+      const url = response.text.trim();
+      if (url.startsWith('http')) {
+        setGeneratedImageUrl(url);
+        
+        // Extract source URL from grounding metadata if available
+        const chunks = response.candidates?.[0]?.groundingMetadata?.groundingChunks;
+        if (chunks && chunks.length > 0 && chunks[0].web) {
+          setImageSourceUrl(chunks[0].web.uri);
+        }
+      } else {
+        throw new Error("Invalid URL returned");
+      }
+    } catch (error) {
+      console.error("Image search failed:", error);
+      // Fallback to static image if search fails
+      setGeneratedImageUrl(result.imageUrl);
+    } finally {
+      setIsGeneratingImage(false);
     }
   };
 
-  const result = useMemo(() => {
-    const categories = Object.keys(scores) as Category[];
-    const winner = categories.reduce((a, b) => scores[a] > scores[b] ? a : b);
-    return RESULTS[winner];
-  }, [scores]);
+  const handleAnswer = (answerScores: Record<Category, number>) => {
+    const newScores = {
+      femboy: scores.femboy + answerScores.femboy,
+      femgirl: scores.femgirl + answerScores.femgirl,
+      normal: scores.normal + answerScores.normal,
+      abnormal: scores.abnormal + answerScores.abnormal
+    };
+    
+    setScores(newScores);
+
+    if (questionIndex < shuffledQuestions.length - 1) {
+      setQuestionIndex(prev => prev + 1);
+    } else {
+      setCurrentStep('result');
+      // No longer auto-generating to keep it fast
+    }
+  };
 
   const resetQuiz = () => {
     setScores({ femboy: 0, femgirl: 0, normal: 0, abnormal: 0 });
     setQuestionIndex(0);
+    setGeneratedImageUrl(null);
+    setImageSourceUrl(null);
     setCurrentStep('start');
   };
 
@@ -49,7 +124,6 @@ export default function App() {
     
     setIsExporting(true);
     try {
-      // Wait a bit for any animations to settle
       await new Promise(resolve => setTimeout(resolve, 500));
       
       const dataUrl = await toPng(resultRef.current, {
@@ -72,7 +146,7 @@ export default function App() {
     }
   };
 
-  const progress = ((questionIndex + 1) / QUESTIONS.length) * 100;
+  const progress = ((questionIndex + 1) / shuffledQuestions.length) * 100;
 
   return (
     <div className="min-h-screen bg-[#f5f5f5] text-[#1a1a1a] font-sans selection:bg-black selection:text-white">
@@ -97,7 +171,7 @@ export default function App() {
                 Temukan kategori kepribadian unikmu melalui 12 pertanyaan sederhana.
               </p>
               <button
-                onClick={() => setCurrentStep('quiz')}
+                onClick={startQuiz}
                 className="group relative inline-flex items-center justify-center px-8 py-4 font-bold text-white transition-all duration-200 bg-black rounded-full hover:bg-gray-800 focus:outline-none"
               >
                 Mulai Sekarang
@@ -117,7 +191,7 @@ export default function App() {
               <div className="space-y-4">
                 <div className="flex justify-between items-end">
                   <span className="text-sm font-mono text-gray-400 uppercase tracking-widest">
-                    Pertanyaan {questionIndex + 1} / {QUESTIONS.length}
+                    Pertanyaan {questionIndex + 1} / {shuffledQuestions.length}
                   </span>
                   <span className="text-xs font-bold text-blue-500">
                     {Math.round(progress)}%
@@ -134,11 +208,11 @@ export default function App() {
 
               <div className="space-y-8">
                 <h2 className="text-3xl md:text-4xl font-bold leading-tight">
-                  {QUESTIONS[questionIndex].text}
+                  {shuffledQuestions[questionIndex].text}
                 </h2>
 
                 <div className="grid gap-4">
-                  {QUESTIONS[questionIndex].answers.map((answer, idx) => (
+                  {shuffledQuestions[questionIndex].answers.map((answer, idx) => (
                     <button
                       key={idx}
                       onClick={() => handleAnswer(answer.scores)}
@@ -168,13 +242,36 @@ export default function App() {
                 </div>
                 
                 <div className="flex flex-col md:flex-row gap-8 items-center md:items-start">
-                  <div className="w-full md:w-1/2 aspect-square rounded-2xl overflow-hidden shadow-lg border-4 border-white">
+                  <div className="w-full md:w-1/2 aspect-square rounded-2xl overflow-hidden shadow-lg border-4 border-white bg-gray-50 flex items-center justify-center relative group">
                     <img 
-                      src={result.imageUrl} 
+                      src={generatedImageUrl || result.imageUrl} 
                       alt={result.title} 
-                      className="w-full h-full object-cover"
+                      className={`w-full h-full object-cover transition-opacity duration-500 ${isGeneratingImage ? 'opacity-30' : 'opacity-100'}`}
                       referrerPolicy="no-referrer"
+                      onError={() => {
+                        if (generatedImageUrl) {
+                          setGeneratedImageUrl(result.imageUrl);
+                          setImageSourceUrl(null);
+                        }
+                      }}
                     />
+                    
+                    {isGeneratingImage && (
+                      <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-white/50 backdrop-blur-sm">
+                        <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
+                        <span className="text-[10px] font-mono text-gray-600 uppercase tracking-widest font-bold">Searching...</span>
+                      </div>
+                    )}
+
+                    {!generatedImageUrl && !isGeneratingImage && (
+                      <button 
+                        onClick={() => generateAnimeImage(winner)}
+                        className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-black/0 hover:bg-black/40 transition-all duration-300 opacity-0 hover:opacity-100 text-white"
+                      >
+                        <Sparkles className="w-8 h-8" />
+                        <span className="text-xs font-bold uppercase tracking-widest">Cari di Google</span>
+                      </button>
+                    )}
                   </div>
                   
                   <div className="w-full md:w-1/2 space-y-6 text-center md:text-left">
@@ -195,6 +292,27 @@ export default function App() {
                     <p className="text-lg text-gray-600 leading-relaxed">
                       {result.description}
                     </p>
+                    
+                    {imageSourceUrl && (
+                      <a 
+                        href={imageSourceUrl} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center text-[10px] font-mono text-blue-500 hover:underline uppercase tracking-widest"
+                      >
+                        Source: {new URL(imageSourceUrl).hostname}
+                      </a>
+                    )}
+                    
+                    {!generatedImageUrl && !isGeneratingImage && (
+                      <button
+                        onClick={() => generateAnimeImage(winner)}
+                        className="inline-flex items-center text-xs font-bold text-blue-500 hover:text-blue-600 transition-colors uppercase tracking-widest"
+                      >
+                        <Sparkles className="mr-1.5 w-3.5 h-3.5" />
+                        Cari Karakter di Google
+                      </button>
+                    )}
                   </div>
                 </div>
 
@@ -235,7 +353,7 @@ export default function App() {
               <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-4">
                 <button
                   onClick={downloadImage}
-                  disabled={isExporting}
+                  disabled={isExporting || isGeneratingImage}
                   className="w-full sm:w-auto inline-flex items-center justify-center px-8 py-4 text-sm font-bold bg-black text-white rounded-full hover:bg-gray-800 transition-all duration-200 disabled:opacity-50"
                 >
                   {isExporting ? (
