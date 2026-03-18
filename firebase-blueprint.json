@@ -1,0 +1,42 @@
+{
+  "entities": {
+    "UserResult": {
+      "title": "User Result",
+      "description": "A quiz result for a specific user.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "description": "The unique ID of the user." },
+        "displayName": { "type": "string", "description": "The display name of the user." },
+        "photoURL": { "type": "string", "description": "The profile picture URL of the user." },
+        "category": { "type": "string", "description": "The winning category of the quiz." },
+        "totalPoints": { "type": "number", "description": "Total points earned in the quiz." },
+        "scores": { "type": "object", "description": "The detailed scores for each category." },
+        "timestamp": { "type": "string", "format": "date-time", "description": "When the result was recorded." }
+      },
+      "required": ["userId", "displayName", "category", "totalPoints", "scores", "timestamp"]
+    },
+    "ChatMessage": {
+      "title": "Chat Message",
+      "description": "A message in the global chat.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "displayName": { "type": "string" },
+        "photoURL": { "type": "string" },
+        "text": { "type": "string" },
+        "timestamp": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "displayName", "text", "timestamp"]
+    }
+  },
+  "firestore": {
+    "/results/{resultId}": {
+      "schema": "UserResult",
+      "description": "Global collection of quiz results for the leaderboard."
+    },
+    "/messages/{messageId}": {
+      "schema": "ChatMessage",
+      "description": "Global chat messages."
+    }
+  }
+}

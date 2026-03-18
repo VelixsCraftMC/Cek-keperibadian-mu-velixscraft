@@ -1,13 +1,21 @@
 import { useState, useMemo, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { ChevronRight, RotateCcw, Sparkles, AlertCircle, User, Heart, Download, Camera, Loader2 } from 'lucide-react';
+import { ChevronRight, RotateCcw, Sparkles, AlertCircle, User, Heart, Download, Camera, Loader2, Trophy, LogIn, LogOut, MessageSquare, Send } from 'lucide-react';
 import { toPng } from 'html-to-image';
 import { GoogleGenAI } from "@google/genai";
 import { QUESTIONS, RESULTS } from './constants';
 import { Category } from './types';
+import { auth, loginWithGoogle, logout, saveResult, subscribeToLeaderboard, sendMessage, subscribeToChat } from './firebase';
+import { onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
 
 export default function App() {
-  const [currentStep, setCurrentStep] = useState<'start' | 'quiz' | 'result'>('start');
+  const [currentStep, setCurrentStep] = useState<'start' | 'quiz' | 'result' | 'leaderboard' | 'chat'>('start');
+  const [user, setUser] = useState<FirebaseUser | null>(null);
+  const [leaderboard, setLeaderboard] = useState<any[]>([]);
+  const [messages, setMessages] = useState<any[]>([]);
+  const [newMessage, setNewMessage] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
+  const chatEndRef = useRef<HTMLDivElement>(null);
   const [questionIndex, setQuestionIndex] = useState(0);
   const [isExporting, setIsExporting] = useState(false);
   const [isGeneratingImage, setIsGeneratingImage] = useState(false);
@@ -164,8 +172,92 @@ export default function App() {
 
   const progress = ((questionIndex + 1) / shuffledQuestions.length) * 100;
 
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (u) => {
+      setUser(u);
+    });
+    return () => unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    const unsubscribe = subscribeToLeaderboard((data) => {
+      setLeaderboard(data);
+    });
+    return () => unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    const unsubscribe = subscribeToChat((data) => {
+      setMessages(data);
+    });
+    return () => unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    if (chatEndRef.current) {
+      chatEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [messages]);
+
+  const handleSendMessage = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!user || !newMessage.trim()) return;
+    const text = newMessage.trim();
+    setNewMessage('');
+    await sendMessage(user.uid, user.displayName || 'Anonymous', user.photoURL || '', text);
+  };
+
+  const handleSaveToLeaderboard = async () => {
+    if (!user || isSaving) return;
+    setIsSaving(true);
+    try {
+      await saveResult(user.uid, user.displayName || 'Anonymous', user.photoURL || '', winner, scores);
+      setCurrentStep('leaderboard');
+    } catch (error) {
+      console.error("Failed to save result:", error);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-[#f5f5f5] text-[#1a1a1a] font-sans selection:bg-black selection:text-white">
+      {/* Header with Auth */}
+      <header className="fixed top-0 left-0 right-0 p-6 flex justify-between items-center z-50 pointer-events-none">
+        <div className="pointer-events-auto flex gap-2">
+          <button 
+            onClick={() => setCurrentStep('leaderboard')}
+            className="p-3 rounded-full bg-white shadow-lg hover:scale-110 transition-transform"
+          >
+            <Trophy className="w-6 h-6 text-yellow-500" />
+          </button>
+          <button 
+            onClick={() => setCurrentStep('chat')}
+            className="p-3 rounded-full bg-white shadow-lg hover:scale-110 transition-transform"
+          >
+            <MessageSquare className="w-6 h-6 text-blue-500" />
+          </button>
+        </div>
+        <div className="pointer-events-auto">
+          {user ? (
+            <div className="flex items-center gap-3 bg-white p-1.5 pr-4 rounded-full shadow-lg">
+              <img src={user.photoURL || ''} className="w-8 h-8 rounded-full" alt="" />
+              <button onClick={logout} className="text-xs font-bold uppercase tracking-widest hover:text-red-500 transition-colors">
+                <LogOut className="w-4 h-4" />
+              </button>
+            </div>
+          ) : (
+            <button 
+              onClick={loginWithGoogle}
+              className="flex items-center gap-2 bg-white px-4 py-2 rounded-full shadow-lg text-xs font-bold uppercase tracking-widest hover:scale-105 transition-transform"
+            >
+              <LogIn className="w-4 h-4" />
+              Login
+            </button>
+          )}
+        </div>
+      </header>
+
       <main className="max-w-2xl mx-auto px-6 py-12 md:py-24">
         <AnimatePresence mode="wait">
           {currentStep === 'start' && (
@@ -339,7 +431,7 @@ export default function App() {
                   <h4 className="text-xs font-bold uppercase tracking-widest text-gray-400 text-center">Detail Skor Kepribadian</h4>
                   <div className="grid grid-cols-2 gap-6">
                     {(Object.keys(scores) as Category[]).map((cat) => {
-                      const totalScore = Object.values(scores).reduce((a, b) => a + b, 0);
+                      const totalScore = (Object.values(scores) as number[]).reduce((a: number, b: number) => a + b, 0);
                       const percentage = totalScore > 0 ? Math.round((scores[cat] / totalScore) * 100) : 0;
                       return (
                         <div key={cat} className="space-y-1.5">
@@ -369,6 +461,24 @@ export default function App() {
               </div>
 
               <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-4">
+                {user ? (
+                  <button
+                    onClick={handleSaveToLeaderboard}
+                    disabled={isSaving}
+                    className="w-full sm:w-auto inline-flex items-center justify-center px-8 py-4 text-sm font-bold bg-blue-500 text-white rounded-full hover:bg-blue-600 transition-all duration-200 disabled:opacity-50"
+                  >
+                    {isSaving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Trophy className="mr-2 w-4 h-4" />}
+                    Simpan ke Leaderboard
+                  </button>
+                ) : (
+                  <button
+                    onClick={loginWithGoogle}
+                    className="w-full sm:w-auto inline-flex items-center justify-center px-8 py-4 text-sm font-bold bg-blue-500 text-white rounded-full hover:bg-blue-600 transition-all duration-200"
+                  >
+                    Login untuk Simpan Skor
+                  </button>
+                )}
+                
                 <button
                   onClick={downloadImage}
                   disabled={isExporting || isGeneratingImage}
@@ -388,6 +498,145 @@ export default function App() {
                 >
                   <RotateCcw className="mr-2 w-4 h-4" />
                   Ulangi Survey
+                </button>
+              </div>
+            </motion.div>
+          )}
+
+          {currentStep === 'leaderboard' && (
+            <motion.div
+              key="leaderboard"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className="space-y-8"
+            >
+              <div className="text-center space-y-4">
+                <Trophy className="w-16 h-16 text-yellow-500 mx-auto" />
+                <h2 className="text-4xl font-black tracking-tighter uppercase">Global Leaderboard</h2>
+                <p className="text-gray-500">Hasil survey dari seluruh dunia</p>
+              </div>
+
+              <div className="bg-white rounded-[32px] shadow-xl overflow-hidden border border-gray-100">
+                <div className="max-h-[500px] overflow-y-auto">
+                  {leaderboard.length === 0 ? (
+                    <div className="p-12 text-center text-gray-400 font-mono text-sm uppercase tracking-widest">
+                      Belum ada data...
+                    </div>
+                  ) : (
+                    leaderboard.map((entry, index) => (
+                      <div 
+                        key={entry.id} 
+                        className={`flex items-center gap-4 p-6 border-b border-gray-50 hover:bg-gray-50 transition-colors ${index < 3 ? 'bg-yellow-50/30' : ''}`}
+                      >
+                        <div className="w-8 text-center font-mono font-bold text-gray-400">
+                          {index + 1}
+                        </div>
+                        <img src={entry.photoURL} className="w-12 h-12 rounded-full border-2 border-white shadow-sm" alt="" />
+                        <div className="flex-1">
+                          <h4 className="font-bold text-lg leading-none">{entry.displayName}</h4>
+                          <span className={`text-[10px] font-bold uppercase tracking-widest ${RESULTS[entry.category as Category]?.color.replace('bg-', 'text-')}`}>
+                            {RESULTS[entry.category as Category]?.title}
+                          </span>
+                        </div>
+                        <div className="text-right">
+                          <div className="text-xl font-black tracking-tighter text-blue-500">
+                            {entry.totalPoints} <span className="text-[10px] uppercase text-gray-400">Pts</span>
+                          </div>
+                          <div className="text-[10px] font-mono text-gray-400">
+                            {entry.timestamp?.toDate().toLocaleDateString()}
+                          </div>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+
+              <div className="text-center">
+                <button
+                  onClick={() => setCurrentStep('start')}
+                  className="inline-flex items-center justify-center px-8 py-4 text-sm font-bold bg-black text-white rounded-full hover:bg-gray-800 transition-all duration-200"
+                >
+                  Kembali ke Beranda
+                </button>
+              </div>
+            </motion.div>
+          )}
+
+          {currentStep === 'chat' && (
+            <motion.div
+              key="chat"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="space-y-8 h-[70vh] flex flex-col"
+            >
+              <div className="text-center space-y-2">
+                <MessageSquare className="w-12 h-12 text-blue-500 mx-auto" />
+                <h2 className="text-4xl font-black tracking-tighter uppercase">Global Chat</h2>
+                <p className="text-xs font-mono text-gray-400 uppercase tracking-widest">Maksimal 34 pesan terakhir</p>
+              </div>
+
+              <div className="flex-1 bg-white rounded-[32px] shadow-xl overflow-hidden border border-gray-100 flex flex-col">
+                <div className="flex-1 overflow-y-auto p-6 space-y-4">
+                  {messages.length === 0 ? (
+                    <div className="h-full flex items-center justify-center text-gray-400 font-mono text-xs uppercase tracking-widest">
+                      Belum ada obrolan...
+                    </div>
+                  ) : (
+                    messages.map((msg) => (
+                      <div 
+                        key={msg.id} 
+                        className={`flex gap-3 ${msg.userId === user?.uid ? 'flex-row-reverse' : ''}`}
+                      >
+                        <img src={msg.photoURL} className="w-8 h-8 rounded-full shadow-sm" alt="" />
+                        <div className={`max-w-[80%] space-y-1 ${msg.userId === user?.uid ? 'items-end' : ''}`}>
+                          <div className="text-[10px] font-bold text-gray-400 px-1">{msg.displayName}</div>
+                          <div className={`p-3 rounded-2xl text-sm ${msg.userId === user?.uid ? 'bg-blue-500 text-white rounded-tr-none' : 'bg-gray-100 text-gray-800 rounded-tl-none'}`}>
+                            {msg.text}
+                          </div>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                  <div ref={chatEndRef} />
+                </div>
+
+                <div className="p-4 border-t border-gray-50 bg-gray-50/50">
+                  {user ? (
+                    <form onSubmit={handleSendMessage} className="flex gap-2">
+                      <input 
+                        type="text" 
+                        value={newMessage}
+                        onChange={(e) => setNewMessage(e.target.value)}
+                        placeholder="Ketik pesan..."
+                        className="flex-1 bg-white border border-gray-200 rounded-full px-6 py-3 text-sm focus:outline-none focus:border-blue-500 transition-colors"
+                      />
+                      <button 
+                        type="submit"
+                        className="p-3 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition-colors shadow-md"
+                      >
+                        <Send className="w-5 h-5" />
+                      </button>
+                    </form>
+                  ) : (
+                    <button 
+                      onClick={loginWithGoogle}
+                      className="w-full py-3 bg-white border border-gray-200 rounded-full text-xs font-bold uppercase tracking-widest text-gray-500 hover:bg-gray-50 transition-colors"
+                    >
+                      Login untuk mengobrol
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              <div className="text-center">
+                <button
+                  onClick={() => setCurrentStep('start')}
+                  className="inline-flex items-center justify-center px-8 py-4 text-sm font-bold bg-black text-white rounded-full hover:bg-gray-800 transition-all duration-200"
+                >
+                  Kembali ke Beranda
                 </button>
               </div>
             </motion.div>
