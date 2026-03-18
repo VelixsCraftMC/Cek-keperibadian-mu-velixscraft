@@ -5,300 +5,300 @@ export const PERSONALITY_QUESTIONS: Question[] = [
     id: 1,
     text: "Bagaimana gaya berpakaian favoritmu saat keluar rumah?",
     answers: [
-      { text: "Maskulin, rapi, dan fungsional", scores: { normal: 100, femboy: 0, femgirl: 0, abnormal: 0, jujur_cewek: 0, jujur_cowok: 40 } as any },
-      { text: "Imut, warna pastel, dan penuh aksesoris lucu", scores: { normal: 0, femboy: 100, femgirl: 60, abnormal: 20, jujur_cewek: 20, jujur_cowok: 0 } as any },
-      { text: "Feminin, elegan, dan terlihat berkelas", scores: { normal: 40, femboy: 0, femgirl: 100, abnormal: 0, jujur_cewek: 40, jujur_cowok: 0 } as any },
-      { text: "Sesuatu yang nyentrik, aneh, dan mencolok", scores: { normal: 0, femboy: 20, femgirl: 20, abnormal: 100, jujur_cewek: 0, jujur_cowok: 0 } as any },
+      { text: "Maskulin, rapi, dan fungsional", scores: { normal: 100, femboy: 0, tomboy: 0, abnormal: 0, jujur_cewek: 0, jujur_cowok: 100 } as any },
+      { text: "Imut, warna pastel, dan penuh aksesoris lucu", scores: { normal: 0, femboy: 100, tomboy: 60, abnormal: 20, jujur_cewek: 100, jujur_cowok: 0 } as any },
+      { text: "Feminin, elegan, dan terlihat berkelas", scores: { normal: 40, femboy: 0, tomboy: 100, abnormal: 0, jujur_cewek: 100, jujur_cowok: 0 } as any },
+      { text: "Sesuatu yang nyentrik, aneh, dan mencolok", scores: { normal: 0, femboy: 20, tomboy: 20, abnormal: 100, jujur_cewek: 0, jujur_cowok: 0 } as any },
     ]
   },
   {
     id: 2,
     text: "Apa yang biasanya kamu lakukan di waktu luang?",
     answers: [
-      { text: "Olahraga berat atau gaming kompetitif", scores: { normal: 80, femboy: 20, femgirl: 0, abnormal: 0, jujur_cewek: 0, jujur_cowok: 60 } as any },
-      { text: "Melakukan rutinitas skincare atau dandan", scores: { normal: 0, femboy: 80, femgirl: 100, abnormal: 0, jujur_cewek: 60, jujur_cowok: 0 } as any },
-      { text: "Cosplay atau mengoleksi barang-barang estetik", scores: { normal: 0, femboy: 100, femgirl: 60, abnormal: 40, jujur_cewek: 20, jujur_cowok: 0 } as any },
-      { text: "Berdiskusi dengan bayangan sendiri", scores: { normal: 0, femboy: 0, femgirl: 0, abnormal: 100, jujur_cewek: 0, jujur_cowok: 0 } as any },
+      { text: "Olahraga berat atau gaming kompetitif", scores: { normal: 80, femboy: 20, tomboy: 0, abnormal: 0, jujur_cewek: 0, jujur_cowok: 100 } as any },
+      { text: "Melakukan rutinitas skincare atau dandan", scores: { normal: 0, femboy: 80, tomboy: 100, abnormal: 0, jujur_cewek: 100, jujur_cowok: 0 } as any },
+      { text: "Cosplay atau mengoleksi barang-barang estetik", scores: { normal: 0, femboy: 100, tomboy: 60, abnormal: 40, jujur_cewek: 60, jujur_cowok: 0 } as any },
+      { text: "Berdiskusi dengan bayangan sendiri", scores: { normal: 0, femboy: 0, tomboy: 0, abnormal: 100, jujur_cewek: 0, jujur_cowok: 0 } as any },
     ]
   },
   {
     id: 3,
     text: "Minuman apa yang paling menggambarkan kepribadianmu?",
     answers: [
-      { text: "Kopi hitam pekat atau air mineral dingin", scores: { normal: 5, femboy: 0, femgirl: 0, abnormal: 0, jujur_cewek: 0, jujur_cowok: 4 } as any },
-      { text: "Milk tea manis dengan boba kenyal", scores: { normal: 1, femboy: 4, femgirl: 4, abnormal: 0, jujur_cewek: 4, jujur_cowok: 0 } as any },
-      { text: "Jus buah segar tanpa pemanis buatan", scores: { normal: 3, femboy: 1, femgirl: 3, abnormal: 0, jujur_cewek: 5, jujur_cowok: 5 } as any },
-      { text: "Ramuan rahasia yang warnanya berubah-ubah", scores: { normal: 0, femboy: 0, femgirl: 0, abnormal: 5, jujur_cewek: 0, jujur_cowok: 0 } as any },
+      { text: "Kopi hitam pekat atau air mineral dingin", scores: { normal: 100, femboy: 0, tomboy: 0, abnormal: 0, jujur_cewek: 0, jujur_cowok: 100 } as any },
+      { text: "Milk tea manis dengan boba kenyal", scores: { normal: 20, femboy: 80, tomboy: 80, abnormal: 0, jujur_cewek: 100, jujur_cowok: 0 } as any },
+      { text: "Jus buah segar tanpa pemanis buatan", scores: { normal: 60, femboy: 20, tomboy: 60, abnormal: 0, jujur_cewek: 80, jujur_cowok: 80 } as any },
+      { text: "Ramuan rahasia yang warnanya berubah-ubah", scores: { normal: 0, femboy: 0, tomboy: 0, abnormal: 100, jujur_cewek: 0, jujur_cowok: 0 } as any },
     ]
   },
   {
     id: 4,
     text: "Bagaimana caramu menyapa orang baru?",
     answers: [
-      { text: "Halo, senang berkenalan denganmu", scores: { normal: 100, femboy: 0, femgirl: 40, abnormal: 0, jujur_cewek: 60, jujur_cowok: 60 } as any },
-      { text: "Haiii~! (dengan senyum paling manis)", scores: { normal: 20, femboy: 80, femgirl: 100, abnormal: 0, jujur_cewek: 80, jujur_cowok: 0 } as any },
-      { text: "Nyaa~ atau UwU (sambil malu-malu)", scores: { normal: 0, femboy: 100, femgirl: 40, abnormal: 60, jujur_cewek: 0, jujur_cowok: 0 } as any },
-      { text: "Hanya menatap sampai mereka merasa canggung", scores: { normal: 0, femboy: 0, femgirl: 0, abnormal: 100, jujur_cewek: 0, jujur_cowok: 0 } as any },
+      { text: "Halo, senang berkenalan denganmu", scores: { normal: 100, femboy: 0, tomboy: 40, abnormal: 0, jujur_cewek: 60, jujur_cowok: 100 } as any },
+      { text: "Haiii~! (dengan senyum paling manis)", scores: { normal: 20, femboy: 80, tomboy: 100, abnormal: 0, jujur_cewek: 100, jujur_cowok: 0 } as any },
+      { text: "Nyaa~ atau UwU (sambil malu-malu)", scores: { normal: 0, femboy: 100, tomboy: 40, abnormal: 60, jujur_cewek: 40, jujur_cowok: 0 } as any },
+      { text: "Hanya menatap sampai mereka merasa canggung", scores: { normal: 0, femboy: 0, tomboy: 0, abnormal: 100, jujur_cewek: 0, jujur_cowok: 0 } as any },
     ]
   },
   {
     id: 5,
     text: "Warna apa yang paling mewakili energimu?",
     answers: [
-      { text: "Biru laut atau Hitam elegan", scores: { normal: 100, femboy: 20, femgirl: 0, abnormal: 0, jujur_cewek: 0, jujur_cowok: 100 } as any },
-      { text: "Pink cerah atau Putih bersih", scores: { normal: 0, femboy: 100, femgirl: 100, abnormal: 0, jujur_cewek: 100, jujur_cowok: 0 } as any },
-      { text: "Ungu misterius atau Kuning ceria", scores: { normal: 40, femboy: 60, femgirl: 60, abnormal: 20, jujur_cewek: 60, jujur_cowok: 60 } as any },
-      { text: "Warna yang hanya bisa didengar, bukan dilihat", scores: { normal: 0, femboy: 0, femgirl: 0, abnormal: 100, jujur_cewek: 0, jujur_cowok: 0 } as any },
+      { text: "Biru laut atau Hitam elegan", scores: { normal: 100, femboy: 20, tomboy: 0, abnormal: 0, jujur_cewek: 0, jujur_cowok: 100 } as any },
+      { text: "Pink cerah atau Putih bersih", scores: { normal: 0, femboy: 100, tomboy: 100, abnormal: 0, jujur_cewek: 100, jujur_cowok: 0 } as any },
+      { text: "Ungu misterius atau Kuning ceria", scores: { normal: 40, femboy: 60, tomboy: 60, abnormal: 20, jujur_cewek: 60, jujur_cowok: 60 } as any },
+      { text: "Warna yang hanya bisa didengar, bukan dilihat", scores: { normal: 0, femboy: 0, tomboy: 0, abnormal: 100, jujur_cewek: 0, jujur_cowok: 0 } as any },
     ]
   },
   {
     id: 6,
     text: "Reaksi spontanmu saat melihat kucing jalanan?",
     answers: [
-      { text: "Kasihan, ingin memberi makan", scores: { normal: 4, femboy: 1, femgirl: 2, abnormal: 0, jujur_cewek: 5, jujur_cowok: 5 } as any },
-      { text: "KYAAA! GEMES BANGET MAU CULIK!", scores: { normal: 0, femboy: 4, femgirl: 5, abnormal: 0, jujur_cewek: 4, jujur_cowok: 0 } as any },
-      { text: "Langsung meong-meong balik ke dia", scores: { normal: 0, femboy: 5, femgirl: 3, abnormal: 2, jujur_cewek: 0, jujur_cowok: 0 } as any },
-      { text: "Mencoba ritual pemanggilan arwah kucing", scores: { normal: 0, femboy: 0, femgirl: 0, abnormal: 5, jujur_cewek: 0, jujur_cowok: 0 } as any },
+      { text: "Kasihan, ingin memberi makan", scores: { normal: 80, femboy: 20, tomboy: 40, abnormal: 0, jujur_cewek: 100, jujur_cowok: 100 } as any },
+      { text: "KYAAA! GEMES BANGET MAU CULIK!", scores: { normal: 0, femboy: 80, tomboy: 100, abnormal: 0, jujur_cewek: 100, jujur_cowok: 0 } as any },
+      { text: "Langsung meong-meong balik ke dia", scores: { normal: 0, femboy: 100, tomboy: 60, abnormal: 40, jujur_cewek: 60, jujur_cowok: 0 } as any },
+      { text: "Mencoba ritual pemanggilan arwah kucing", scores: { normal: 0, femboy: 0, tomboy: 0, abnormal: 100, jujur_cewek: 0, jujur_cowok: 0 } as any },
     ]
   },
   {
     id: 7,
     text: "Apa impian terbesarmu di masa depan?",
     answers: [
-      { text: "Menjadi orang sukses dan dihormati", scores: { normal: 5, femboy: 1, femgirl: 1, abnormal: 0, jujur_cewek: 2, jujur_cowok: 5 } as any },
-      { text: "Menjadi idol atau influencer terkenal", scores: { normal: 1, femboy: 4, femgirl: 5, abnormal: 0, jujur_cewek: 5, jujur_cowok: 0 } as any },
-      { text: "Menjadi maid/butler yang paling imut", scores: { normal: 0, femboy: 5, femgirl: 3, abnormal: 2, jujur_cewek: 1, jujur_cowok: 0 } as any },
-      { text: "Membangun kerajaan di planet Mars", scores: { normal: 0, femboy: 0, femgirl: 0, abnormal: 5, jujur_cewek: 0, jujur_cowok: 0 } as any },
+      { text: "Menjadi orang sukses dan dihormati", scores: { normal: 100, femboy: 20, tomboy: 20, abnormal: 0, jujur_cewek: 40, jujur_cowok: 100 } as any },
+      { text: "Menjadi idol atau influencer terkenal", scores: { normal: 20, femboy: 80, tomboy: 100, abnormal: 0, jujur_cewek: 100, jujur_cowok: 0 } as any },
+      { text: "Menjadi maid/butler yang paling imut", scores: { normal: 0, femboy: 100, tomboy: 60, abnormal: 40, jujur_cewek: 20, jujur_cowok: 0 } as any },
+      { text: "Membangun kerajaan di planet Mars", scores: { normal: 0, femboy: 0, tomboy: 0, abnormal: 100, jujur_cewek: 0, jujur_cowok: 0 } as any },
     ]
   },
   {
     id: 8,
     text: "Aksesoris apa yang wajib kamu pakai?",
     answers: [
-      { text: "Jam tangan atau kacamata hitam", scores: { normal: 5, femboy: 0, femgirl: 0, abnormal: 0, jujur_cewek: 0, jujur_cowok: 5 } as any },
-      { text: "Choker, pita, atau bando telinga kucing", scores: { normal: 0, femboy: 5, femgirl: 4, abnormal: 1, jujur_cewek: 2, jujur_cowok: 0 } as any },
-      { text: "Anting, kalung, atau cincin cantik", scores: { normal: 2, femboy: 2, femgirl: 5, abnormal: 0, jujur_cewek: 5, jujur_cowok: 0 } as any },
-      { text: "Rantai besi atau jimat pelindung", scores: { normal: 0, femboy: 0, femgirl: 0, abnormal: 5, jujur_cewek: 0, jujur_cowok: 0 } as any },
+      { text: "Jam tangan atau kacamata hitam", scores: { normal: 100, femboy: 0, tomboy: 0, abnormal: 0, jujur_cewek: 0, jujur_cowok: 100 } as any },
+      { text: "Choker, pita, atau bando telinga kucing", scores: { normal: 0, femboy: 100, tomboy: 80, abnormal: 20, jujur_cewek: 40, jujur_cowok: 0 } as any },
+      { text: "Anting, kalung, atau cincin cantik", scores: { normal: 40, femboy: 40, tomboy: 100, abnormal: 0, jujur_cewek: 100, jujur_cowok: 0 } as any },
+      { text: "Rantai besi atau jimat pelindung", scores: { normal: 0, femboy: 0, tomboy: 0, abnormal: 100, jujur_cewek: 0, jujur_cowok: 0 } as any },
     ]
   },
   {
     id: 9,
     text: "Bagaimana perasaanmu saat ini?",
     answers: [
-      { text: "Fokus, tenang, dan siap bekerja", scores: { normal: 5, femboy: 0, femgirl: 0, abnormal: 0, jujur_cewek: 1, jujur_cowok: 5 } as any },
-      { text: "Merasa sangat cantik/ganteng dan bahagia", scores: { normal: 2, femboy: 4, femgirl: 4, abnormal: 0, jujur_cewek: 5, jujur_cowok: 3 } as any },
-      { text: "Ingin dimanja dan dipeluk erat", scores: { normal: 0, femboy: 5, femgirl: 5, abnormal: 1, jujur_cewek: 4, jujur_cowok: 0 } as any },
-      { text: "Saya merasa seperti glitch dalam matriks", scores: { normal: 0, femboy: 0, femgirl: 0, abnormal: 5, jujur_cewek: 0, jujur_cowok: 0 } as any },
+      { text: "Fokus, tenang, dan siap bekerja", scores: { normal: 100, femboy: 0, tomboy: 0, abnormal: 0, jujur_cewek: 20, jujur_cowok: 100 } as any },
+      { text: "Merasa sangat cantik/ganteng dan bahagia", scores: { normal: 40, femboy: 80, tomboy: 80, abnormal: 0, jujur_cewek: 100, jujur_cowok: 60 } as any },
+      { text: "Ingin dimanja dan dipeluk erat", scores: { normal: 0, femboy: 100, tomboy: 100, abnormal: 20, jujur_cewek: 80, jujur_cowok: 0 } as any },
+      { text: "Saya merasa seperti glitch dalam matriks", scores: { normal: 0, femboy: 0, tomboy: 0, abnormal: 100, jujur_cewek: 0, jujur_cowok: 0 } as any },
     ]
   },
   {
     id: 10,
     text: "Menurutmu, apa itu cinta?",
     answers: [
-      { text: "Tanggung jawab dan kesetiaan mutlak", scores: { normal: 5, femboy: 1, femgirl: 2, abnormal: 0, jujur_cewek: 3, jujur_cowok: 5 } as any },
-      { text: "Sesuatu yang manis, indah, dan berbunga", scores: { normal: 2, femboy: 4, femgirl: 5, abnormal: 0, jujur_cewek: 5, jujur_cowok: 0 } as any },
-      { text: "Headpats, pelukan, dan perhatian penuh", scores: { normal: 0, femboy: 5, femgirl: 3, abnormal: 1, jujur_cewek: 4, jujur_cowok: 0 } as any },
-      { text: "Cinta adalah konspirasi pemerintah", scores: { normal: 0, femboy: 0, femgirl: 0, abnormal: 5, jujur_cewek: 0, jujur_cowok: 0 } as any },
+      { text: "Tanggung jawab dan kesetiaan mutlak", scores: { normal: 100, femboy: 20, tomboy: 40, abnormal: 0, jujur_cewek: 60, jujur_cowok: 100 } as any },
+      { text: "Sesuatu yang manis, indah, dan berbunga", scores: { normal: 40, femboy: 80, tomboy: 100, abnormal: 0, jujur_cewek: 100, jujur_cowok: 0 } as any },
+      { text: "Headpats, pelukan, dan perhatian penuh", scores: { normal: 0, femboy: 100, tomboy: 60, abnormal: 20, jujur_cewek: 80, jujur_cowok: 0 } as any },
+      { text: "Cinta adalah konspirasi pemerintah", scores: { normal: 0, femboy: 0, tomboy: 0, abnormal: 100, jujur_cewek: 0, jujur_cowok: 0 } as any },
     ]
   },
   {
     id: 11,
     text: "Jika kamu menemukan dompet di jalan, apa yang kamu lakukan?",
     answers: [
-      { text: "Mencari pemiliknya lewat identitas di dalam", scores: { normal: 4, femboy: 0, femgirl: 0, abnormal: 0, jujur_cewek: 5, jujur_cowok: 5 } as any },
-      { text: "Menyerahkannya ke kantor polisi terdekat", scores: { normal: 5, femboy: 0, femgirl: 0, abnormal: 0, jujur_cewek: 4, jujur_cowok: 5 } as any },
-      { text: "Berharap ada hadiah kalau dikembalikan", scores: { normal: 2, femboy: 3, femgirl: 3, abnormal: 1, jujur_cewek: 2, jujur_cowok: 2 } as any },
-      { text: "Memakan dompetnya untuk menyerap energinya", scores: { normal: 0, femboy: 0, femgirl: 0, abnormal: 5, jujur_cewek: 0, jujur_cowok: 0 } as any },
+      { text: "Mencari pemiliknya lewat identitas di dalam", scores: { normal: 80, femboy: 0, tomboy: 0, abnormal: 0, jujur_cewek: 100, jujur_cowok: 100 } as any },
+      { text: "Menyerahkannya ke kantor polisi terdekat", scores: { normal: 100, femboy: 0, tomboy: 0, abnormal: 0, jujur_cewek: 100, jujur_cowok: 100 } as any },
+      { text: "Berharap ada hadiah kalau dikembalikan", scores: { normal: 40, femboy: 60, tomboy: 60, abnormal: 20, jujur_cewek: 40, jujur_cowok: 40 } as any },
+      { text: "Memakan dompetnya untuk menyerap energinya", scores: { normal: 0, femboy: 0, tomboy: 0, abnormal: 100, jujur_cewek: 0, jujur_cowok: 0 } as any },
     ]
   },
   {
     id: 12,
     text: "Bagaimana caramu menghadapi masalah?",
     answers: [
-      { text: "Dihadapi dengan kepala dingin dan logika", scores: { normal: 5, femboy: 0, femgirl: 0, abnormal: 0, jujur_cewek: 2, jujur_cowok: 5 } as any },
-      { text: "Curhat ke teman sambil menangis sedikit", scores: { normal: 1, femboy: 4, femgirl: 5, abnormal: 0, jujur_cewek: 5, jujur_cowok: 0 } as any },
-      { text: "Bersembunyi di bawah selimut yang hangat", scores: { normal: 0, femboy: 5, femgirl: 3, abnormal: 2, jujur_cewek: 3, jujur_cowok: 0 } as any },
-      { text: "Masalah tidak ada jika saya tidak ada", scores: { normal: 0, femboy: 0, femgirl: 0, abnormal: 5, jujur_cewek: 0, jujur_cowok: 0 } as any },
+      { text: "Dihadapi dengan kepala dingin dan logika", scores: { normal: 100, femboy: 0, tomboy: 0, abnormal: 0, jujur_cewek: 40, jujur_cowok: 100 } as any },
+      { text: "Curhat ke teman sambil menangis sedikit", scores: { normal: 20, femboy: 80, tomboy: 100, abnormal: 0, jujur_cewek: 100, jujur_cowok: 0 } as any },
+      { text: "Bersembunyi di bawah selimut yang hangat", scores: { normal: 0, femboy: 100, tomboy: 60, abnormal: 40, jujur_cewek: 60, jujur_cowok: 0 } as any },
+      { text: "Masalah tidak ada jika saya tidak ada", scores: { normal: 0, femboy: 0, tomboy: 0, abnormal: 100, jujur_cewek: 0, jujur_cowok: 0 } as any },
     ]
   },
   {
     id: 13,
     text: "Terakhir, bagaimana kamu ingin diingat?",
     answers: [
-      { text: "Sebagai orang yang berguna dan sukses", scores: { normal: 5, femboy: 0, femgirl: 0, abnormal: 0, jujur_cewek: 2, jujur_cowok: 5 } as any },
-      { text: "Sebagai sosok yang cantik dan menginspirasi", scores: { normal: 1, femboy: 3, femgirl: 5, abnormal: 0, jujur_cewek: 5, jujur_cowok: 0 } as any },
-      { text: "Sebagai pribadi yang jujur dan tulus", scores: { normal: 3, femboy: 2, femgirl: 2, abnormal: 0, jujur_cewek: 5, jujur_cowok: 5 } as any },
-      { text: "Sebagai legenda urban yang menakutkan", scores: { normal: 0, femboy: 0, femgirl: 0, abnormal: 5, jujur_cewek: 0, jujur_cowok: 0 } as any },
+      { text: "Sebagai orang yang berguna dan sukses", scores: { normal: 100, femboy: 0, tomboy: 0, abnormal: 0, jujur_cewek: 40, jujur_cowok: 100 } as any },
+      { text: "Sebagai sosok yang cantik dan menginspirasi", scores: { normal: 20, femboy: 60, tomboy: 100, abnormal: 0, jujur_cewek: 100, jujur_cowok: 0 } as any },
+      { text: "Sebagai pribadi yang jujur dan tulus", scores: { normal: 60, femboy: 40, tomboy: 40, abnormal: 0, jujur_cewek: 100, jujur_cowok: 100 } as any },
+      { text: "Sebagai legenda urban yang menakutkan", scores: { normal: 0, femboy: 0, tomboy: 0, abnormal: 100, jujur_cewek: 0, jujur_cowok: 0 } as any },
     ]
   },
   {
     id: 14,
     text: "Bagaimana gaya ketawamu saat chatting?",
     answers: [
-      { text: "Wkwkwkw (Klasik dan santai)", scores: { normal: 5, jujur_cowok: 3, jujur_cewek: 3, femboy: 0, femgirl: 0, abnormal: 0 } as any },
-      { text: "Awokawok (Sedikit liar dan unik)", scores: { normal: 0, abnormal: 5, femboy: 2, femgirl: 0, jujur_cewek: 0, jujur_cowok: 0 } as any },
-      { text: "Hahahaha (Formal tapi ekspresif)", scores: { normal: 4, jujur_cowok: 2, jujur_cewek: 2, femboy: 0, femgirl: 0, abnormal: 0 } as any },
-      { text: "Hehehe atau Hihihi (Imut dan misterius)", scores: { normal: 0, femboy: 5, femgirl: 4, abnormal: 1, jujur_cewek: 0, jujur_cowok: 0 } as any },
+      { text: "Wkwkwkw (Klasik dan santai)", scores: { normal: 100, jujur_cowok: 80, jujur_cewek: 80, femboy: 0, tomboy: 0, abnormal: 0 } as any },
+      { text: "Awokawok (Sedikit liar dan unik)", scores: { normal: 0, abnormal: 100, femboy: 40, tomboy: 0, jujur_cewek: 0, jujur_cowok: 0 } as any },
+      { text: "Hahahaha (Formal tapi ekspresif)", scores: { normal: 80, jujur_cowok: 60, jujur_cewek: 60, femboy: 0, tomboy: 0, abnormal: 0 } as any },
+      { text: "Hehehe atau Hihihi (Imut dan misterius)", scores: { normal: 0, femboy: 100, tomboy: 80, abnormal: 20, jujur_cewek: 0, jujur_cowok: 0 } as any },
     ]
   },
   {
     id: 15,
     text: "Apa hobi yang paling kamu nikmati?",
     answers: [
-      { text: "Membaca buku atau menulis", scores: { normal: 5, jujur_cewek: 3, femboy: 0, femgirl: 0, abnormal: 0, jujur_cowok: 0 } as any },
-      { text: "Bermain game atau coding", scores: { normal: 3, jujur_cowok: 5, femboy: 2, femgirl: 0, abnormal: 0, jujur_cewek: 0 } as any },
-      { text: "Menonton anime atau menggambar", scores: { normal: 0, femboy: 5, abnormal: 3, femgirl: 0, jujur_cewek: 0, jujur_cowok: 0 } as any },
-      { text: "Jalan-jalan atau shopping", scores: { normal: 3, femgirl: 5, femboy: 0, abnormal: 0, jujur_cewek: 0, jujur_cowok: 0 } as any },
+      { text: "Membaca buku atau menulis", scores: { normal: 100, jujur_cewek: 80, femboy: 0, tomboy: 0, abnormal: 0, jujur_cowok: 0 } as any },
+      { text: "Bermain game atau coding", scores: { normal: 60, jujur_cowok: 100, femboy: 40, tomboy: 0, abnormal: 0, jujur_cewek: 0 } as any },
+      { text: "Menonton anime atau menggambar", scores: { normal: 0, femboy: 100, abnormal: 60, tomboy: 0, jujur_cewek: 0, jujur_cowok: 0 } as any },
+      { text: "Jalan-jalan atau shopping", scores: { normal: 60, tomboy: 100, femboy: 0, abnormal: 0, jujur_cewek: 80, jujur_cowok: 0 } as any },
     ]
   },
   {
     id: 16,
     text: "Hewan apa yang ingin kamu pelihara?",
     answers: [
-      { text: "Anjing (Setia dan tangguh)", scores: { normal: 5, jujur_cowok: 4, femboy: 0, femgirl: 0, abnormal: 0, jujur_cewek: 0 } as any },
-      { text: "Kucing (Manja dan menggemaskan)", scores: { normal: 0, femboy: 5, femgirl: 5, jujur_cewek: 4, abnormal: 0, jujur_cowok: 0 } as any },
-      { text: "Burung atau Ikan (Tenang)", scores: { normal: 4, jujur_cowok: 3, femboy: 0, femgirl: 0, abnormal: 0, jujur_cewek: 0 } as any },
-      { text: "Ular atau Laba-laba (Eksotis)", scores: { normal: 0, abnormal: 5, femboy: 0, femgirl: 0, jujur_cewek: 0, jujur_cowok: 0 } as any },
+      { text: "Anjing (Setia dan tangguh)", scores: { normal: 100, jujur_cowok: 100, femboy: 0, tomboy: 0, abnormal: 0, jujur_cewek: 0 } as any },
+      { text: "Kucing (Manja dan menggemaskan)", scores: { normal: 0, femboy: 100, tomboy: 100, jujur_cewek: 100, abnormal: 0, jujur_cowok: 0 } as any },
+      { text: "Burung atau Ikan (Tenang)", scores: { normal: 80, jujur_cowok: 60, femboy: 0, tomboy: 0, abnormal: 0, jujur_cewek: 0 } as any },
+      { text: "Ular atau Laba-laba (Eksotis)", scores: { normal: 0, abnormal: 100, femboy: 0, tomboy: 0, jujur_cewek: 0, jujur_cowok: 0 } as any },
     ]
   },
   {
     id: 17,
     text: "Genre film apa yang paling kamu suka?",
     answers: [
-      { text: "Action atau Thriller", scores: { normal: 5, jujur_cowok: 5, femboy: 0, femgirl: 0, abnormal: 0, jujur_cewek: 0 } as any },
-      { text: "Romance atau Drama", scores: { normal: 0, femgirl: 5, jujur_cewek: 5, femboy: 0, abnormal: 0, jujur_cowok: 0 } as any },
-      { text: "Horror atau Sci-Fi", scores: { normal: 0, abnormal: 5, femboy: 0, femgirl: 0, jujur_cewek: 0, jujur_cowok: 0 } as any },
-      { text: "Slice of Life atau Komedi", scores: { normal: 3, femboy: 5, femgirl: 0, abnormal: 0, jujur_cewek: 0, jujur_cowok: 0 } as any },
+      { text: "Action atau Thriller", scores: { normal: 100, jujur_cowok: 100, femboy: 0, tomboy: 0, abnormal: 0, jujur_cewek: 0 } as any },
+      { text: "Romance atau Drama", scores: { normal: 0, tomboy: 100, jujur_cewek: 100, femboy: 0, abnormal: 0, jujur_cowok: 0 } as any },
+      { text: "Horror atau Sci-Fi", scores: { normal: 0, abnormal: 100, femboy: 0, tomboy: 0, jujur_cewek: 0, jujur_cowok: 0 } as any },
+      { text: "Slice of Life atau Komedi", scores: { normal: 60, femboy: 100, tomboy: 0, abnormal: 0, jujur_cewek: 0, jujur_cowok: 0 } as any },
     ]
   },
   {
     id: 18,
     text: "Tempat liburan impianmu?",
     answers: [
-      { text: "Gunung yang sejuk", scores: { normal: 5, jujur_cowok: 4, femboy: 0, femgirl: 0, abnormal: 0, jujur_cewek: 0 } as any },
-      { text: "Pantai yang indah", scores: { normal: 0, femgirl: 5, jujur_cewek: 4, femboy: 0, abnormal: 0, jujur_cowok: 0 } as any },
-      { text: "Kota besar yang modern", scores: { normal: 4, femboy: 3, femgirl: 0, abnormal: 0, jujur_cewek: 0, jujur_cowok: 0 } as any },
-      { text: "Kamar sendiri (Introvert life)", scores: { normal: 0, abnormal: 5, femboy: 4, femgirl: 0, jujur_cewek: 0, jujur_cowok: 0 } as any },
+      { text: "Gunung yang sejuk", scores: { normal: 100, jujur_cowok: 100, femboy: 0, tomboy: 0, abnormal: 0, jujur_cewek: 0 } as any },
+      { text: "Pantai yang indah", scores: { normal: 0, tomboy: 100, jujur_cewek: 100, femboy: 0, abnormal: 0, jujur_cowok: 0 } as any },
+      { text: "Kota besar yang modern", scores: { normal: 80, femboy: 60, tomboy: 0, abnormal: 0, jujur_cewek: 0, jujur_cowok: 0 } as any },
+      { text: "Kamar sendiri (Introvert life)", scores: { normal: 0, abnormal: 100, femboy: 80, tomboy: 0, jujur_cewek: 0, jujur_cowok: 0 } as any },
     ]
   },
   {
     id: 19,
     text: "Bagaimana caramu belajar yang paling efektif?",
     answers: [
-      { text: "Mendengarkan musik", scores: { normal: 3, femboy: 4, femgirl: 0, abnormal: 0, jujur_cewek: 0, jujur_cowok: 0 } as any },
-      { text: "Suasana yang sangat tenang", scores: { normal: 5, jujur_cowok: 4, femboy: 0, femgirl: 0, abnormal: 0, jujur_cewek: 0 } as any },
-      { text: "Sambil ngemil atau minum kopi", scores: { normal: 0, femgirl: 4, jujur_cewek: 4, femboy: 0, abnormal: 0, jujur_cowok: 0 } as any },
-      { text: "SKS (Sistem Kebut Semalam)", scores: { normal: 0, abnormal: 5, femboy: 0, femgirl: 0, jujur_cewek: 0, jujur_cowok: 0 } as any },
+      { text: "Mendengarkan musik", scores: { normal: 60, femboy: 80, tomboy: 0, abnormal: 0, jujur_cewek: 0, jujur_cowok: 0 } as any },
+      { text: "Suasana yang sangat tenang", scores: { normal: 100, jujur_cowok: 100, femboy: 0, tomboy: 0, abnormal: 0, jujur_cewek: 0 } as any },
+      { text: "Sambil ngemil atau minum kopi", scores: { normal: 0, tomboy: 100, jujur_cewek: 100, femboy: 0, abnormal: 0, jujur_cowok: 0 } as any },
+      { text: "SKS (Sistem Kebut Semalam)", scores: { normal: 0, abnormal: 100, femboy: 0, tomboy: 0, jujur_cewek: 0, jujur_cowok: 0 } as any },
     ]
   },
   {
     id: 20,
     text: "Apa yang kamu lakukan saat sedang marah?",
     answers: [
-      { text: "Diam seribu bahasa", scores: { normal: 5, jujur_cewek: 4, femboy: 0, femgirl: 0, abnormal: 0, jujur_cowok: 0 } as any },
-      { text: "Meledak-ledak dan frontal", scores: { normal: 0, abnormal: 4, jujur_cowok: 3, femboy: 0, femgirl: 0, jujur_cewek: 0 } as any },
-      { text: "Menangis sendirian", scores: { normal: 0, femboy: 5, femgirl: 5, abnormal: 0, jujur_cewek: 0, jujur_cowok: 0 } as any },
-      { text: "Tertawa jahat (Villain arc)", scores: { normal: 0, abnormal: 5, femboy: 0, femgirl: 0, jujur_cewek: 0, jujur_cowok: 0 } as any },
+      { text: "Diam seribu bahasa", scores: { normal: 100, jujur_cewek: 100, femboy: 0, tomboy: 0, abnormal: 0, jujur_cowok: 0 } as any },
+      { text: "Meledak-ledak dan frontal", scores: { normal: 0, abnormal: 80, jujur_cowok: 100, femboy: 0, tomboy: 0, jujur_cewek: 0 } as any },
+      { text: "Menangis sendirian", scores: { normal: 0, femboy: 100, tomboy: 100, abnormal: 0, jujur_cewek: 0, jujur_cowok: 0 } as any },
+      { text: "Tertawa jahat (Villain arc)", scores: { normal: 0, abnormal: 100, femboy: 0, tomboy: 0, jujur_cewek: 0, jujur_cowok: 0 } as any },
     ]
   },
   {
     id: 21,
     text: "Bagaimana reaksimu saat dipuji oleh orang lain?",
     answers: [
-      { text: "Tersenyum sopan dan bilang terima kasih", scores: { normal: 5, jujur_cowok: 3, jujur_cewek: 3, femboy: 0, femgirl: 0, abnormal: 0 } as any },
-      { text: "Wajah memerah dan jadi salah tingkah", scores: { normal: 0, femboy: 5, femgirl: 4, abnormal: 0, jujur_cewek: 0, jujur_cowok: 0 } as any },
-      { text: "Langsung memuji balik mereka", scores: { normal: 3, jujur_cewek: 5, femgirl: 4, femboy: 0, abnormal: 0, jujur_cowok: 0 } as any },
-      { text: "Bertanya 'Apa maumu sebenarnya?'", scores: { normal: 0, abnormal: 5, jujur_cowok: 2, femboy: 0, femgirl: 0, jujur_cewek: 0 } as any },
+      { text: "Tersenyum sopan dan bilang terima kasih", scores: { normal: 100, jujur_cowok: 80, jujur_cewek: 80, femboy: 0, tomboy: 0, abnormal: 0 } as any },
+      { text: "Wajah memerah dan jadi salah tingkah", scores: { normal: 0, femboy: 100, tomboy: 80, abnormal: 0, jujur_cewek: 0, jujur_cowok: 0 } as any },
+      { text: "Langsung memuji balik mereka", scores: { normal: 60, jujur_cewek: 100, tomboy: 80, femboy: 0, abnormal: 0, jujur_cowok: 0 } as any },
+      { text: "Bertanya 'Apa maumu sebenarnya?'", scores: { normal: 0, abnormal: 100, jujur_cowok: 60, femboy: 0, tomboy: 0, jujur_cewek: 0 } as any },
     ]
   },
   {
     id: 22,
     text: "Apa jenis musik yang paling sering kamu dengar?",
     answers: [
-      { text: "Pop atau lagu-lagu yang sedang hits", scores: { normal: 5, jujur_cewek: 3, jujur_cowok: 3, femboy: 0, femgirl: 0, abnormal: 0 } as any },
-      { text: "Lagu-lagu anime atau J-Pop", scores: { normal: 0, femboy: 5, abnormal: 3, femgirl: 0, jujur_cewek: 0, jujur_cowok: 0 } as any },
-      { text: "Rock, Metal, atau EDM", scores: { normal: 3, jujur_cowok: 5, abnormal: 2, femboy: 0, femgirl: 0, jujur_cewek: 0 } as any },
-      { text: "Lagu klasik atau instrumental", scores: { normal: 4, femgirl: 4, jujur_cewek: 3, femboy: 0, abnormal: 0, jujur_cowok: 0 } as any },
+      { text: "Pop atau lagu-lagu yang sedang hits", scores: { normal: 100, jujur_cewek: 80, jujur_cowok: 80, femboy: 0, tomboy: 0, abnormal: 0 } as any },
+      { text: "Lagu-lagu anime atau J-Pop", scores: { normal: 0, femboy: 100, abnormal: 60, tomboy: 0, jujur_cewek: 0, jujur_cowok: 0 } as any },
+      { text: "Rock, Metal, atau EDM", scores: { normal: 60, jujur_cowok: 100, abnormal: 40, femboy: 0, tomboy: 0, jujur_cewek: 0 } as any },
+      { text: "Lagu klasik atau instrumental", scores: { normal: 80, tomboy: 80, jujur_cewek: 60, femboy: 0, abnormal: 0, jujur_cowok: 0 } as any },
     ]
   },
   {
     id: 23,
     text: "Bagaimana caramu menghabiskan uang?",
     answers: [
-      { text: "Menabung untuk masa depan", scores: { normal: 5, jujur_cowok: 4, jujur_cewek: 4, femboy: 0, femgirl: 0, abnormal: 0 } as any },
-      { text: "Membeli barang-barang imut dan koleksi", scores: { normal: 0, femboy: 5, femgirl: 4, abnormal: 1, jujur_cewek: 0, jujur_cowok: 0 } as any },
-      { text: "Traktir teman-teman atau keluarga", scores: { normal: 4, jujur_cowok: 3, jujur_cewek: 5, femboy: 0, femgirl: 0, abnormal: 0 } as any },
-      { text: "Membeli barang aneh yang tidak berguna", scores: { normal: 0, abnormal: 5, femboy: 2, femgirl: 0, jujur_cewek: 0, jujur_cowok: 0 } as any },
+      { text: "Menabung untuk masa depan", scores: { normal: 100, jujur_cowok: 100, jujur_cewek: 100, femboy: 0, tomboy: 0, abnormal: 0 } as any },
+      { text: "Membeli barang-barang imut dan koleksi", scores: { normal: 0, femboy: 100, tomboy: 80, abnormal: 40, jujur_cewek: 0, jujur_cowok: 0 } as any },
+      { text: "Traktir teman-teman atau keluarga", scores: { normal: 80, jujur_cowok: 60, jujur_cewek: 100, femboy: 0, tomboy: 0, abnormal: 0 } as any },
+      { text: "Membeli barang aneh yang tidak berguna", scores: { normal: 0, abnormal: 100, femboy: 40, tomboy: 0, jujur_cewek: 0, jujur_cowok: 0 } as any },
     ]
   },
   {
     id: 24,
     text: "Apa yang kamu lakukan jika melihat teman sedang sedih?",
     answers: [
-      { text: "Memberikan solusi yang logis", scores: { normal: 5, jujur_cowok: 5, femboy: 0, femgirl: 0, abnormal: 0, jujur_cewek: 0 } as any },
-      { text: "Mendengarkan dan memeluk mereka", scores: { normal: 0, femboy: 4, femgirl: 5, jujur_cewek: 5, abnormal: 0, jujur_cowok: 0 } as any },
-      { text: "Mengajak mereka makan atau jalan-jalan", scores: { normal: 4, jujur_cewek: 4, jujur_cowok: 3, femboy: 0, femgirl: 0, abnormal: 0 } as any },
-      { text: "Menceritakan lelucon yang sangat garing", scores: { normal: 0, abnormal: 5, femboy: 2, femgirl: 0, jujur_cewek: 0, jujur_cowok: 0 } as any },
+      { text: "Memberikan solusi yang logis", scores: { normal: 100, jujur_cowok: 100, femboy: 0, tomboy: 0, abnormal: 0, jujur_cewek: 0 } as any },
+      { text: "Mendengarkan dan memeluk mereka", scores: { normal: 0, femboy: 80, tomboy: 100, jujur_cewek: 100, abnormal: 0, jujur_cowok: 0 } as any },
+      { text: "Mengajak mereka makan atau jalan-jalan", scores: { normal: 80, jujur_cewek: 80, jujur_cowok: 60, femboy: 0, tomboy: 0, abnormal: 0 } as any },
+      { text: "Menceritakan lelucon yang sangat garing", scores: { normal: 0, abnormal: 100, femboy: 40, tomboy: 0, jujur_cewek: 0, jujur_cowok: 0 } as any },
     ]
   },
   {
     id: 25,
     text: "Bagaimana caramu mengambil keputusan?",
     answers: [
-      { text: "Berpikir panjang dan menganalisis risiko", scores: { normal: 5, jujur_cowok: 5, femboy: 0, femgirl: 0, abnormal: 0, jujur_cewek: 0 } as any },
-      { text: "Mengikuti kata hati dan perasaan", scores: { normal: 0, femboy: 4, femgirl: 5, jujur_cewek: 5, abnormal: 0, jujur_cowok: 0 } as any },
-      { text: "Bertanya pendapat orang lain dulu", scores: { normal: 4, jujur_cewek: 3, femboy: 2, femgirl: 0, abnormal: 0, jujur_cowok: 0 } as any },
-      { text: "Lempar koin atau asal pilih saja", scores: { normal: 0, abnormal: 5, femboy: 0, femgirl: 0, jujur_cewek: 0, jujur_cowok: 0 } as any },
+      { text: "Berpikir panjang dan menganalisis risiko", scores: { normal: 100, jujur_cowok: 100, femboy: 0, tomboy: 0, abnormal: 0, jujur_cewek: 0 } as any },
+      { text: "Mengikuti kata hati dan perasaan", scores: { normal: 0, femboy: 80, tomboy: 100, jujur_cewek: 100, abnormal: 0, jujur_cowok: 0 } as any },
+      { text: "Bertanya pendapat orang lain dulu", scores: { normal: 80, jujur_cewek: 60, femboy: 40, tomboy: 0, abnormal: 0, jujur_cowok: 0 } as any },
+      { text: "Lempar koin atau asal pilih saja", scores: { normal: 0, abnormal: 100, femboy: 0, tomboy: 0, jujur_cewek: 0, jujur_cowok: 0 } as any },
     ]
   },
   {
     id: 26,
     text: "Apa yang paling kamu benci dari orang lain?",
     answers: [
-      { text: "Kebohongan dan ketidaktulusan", scores: { normal: 5, jujur_cowok: 5, jujur_cewek: 5, femboy: 0, femgirl: 0, abnormal: 0 } as any },
-      { text: "Kekasaran dan perilaku yang tidak sopan", scores: { normal: 4, femboy: 4, femgirl: 5, jujur_cewek: 4, abnormal: 0, jujur_cowok: 0 } as any },
-      { text: "Orang yang terlalu membosankan", scores: { normal: 0, abnormal: 5, femboy: 2, femgirl: 0, jujur_cewek: 0, jujur_cowok: 0 } as any },
-      { text: "Orang yang terlalu berisik", scores: { normal: 3, jujur_cowok: 3, femboy: 0, femgirl: 0, abnormal: 1, jujur_cewek: 0 } as any },
+      { text: "Kebohongan dan ketidaktulusan", scores: { normal: 100, jujur_cowok: 100, jujur_cewek: 100, femboy: 0, tomboy: 0, abnormal: 0 } as any },
+      { text: "Kekasaran dan perilaku yang tidak sopan", scores: { normal: 80, femboy: 80, tomboy: 100, jujur_cewek: 80, abnormal: 0, jujur_cowok: 0 } as any },
+      { text: "Orang yang terlalu membosankan", scores: { normal: 0, abnormal: 100, femboy: 40, tomboy: 0, jujur_cewek: 0, jujur_cowok: 0 } as any },
+      { text: "Orang yang terlalu berisik", scores: { normal: 60, jujur_cowok: 60, femboy: 0, tomboy: 0, abnormal: 40, jujur_cewek: 0 } as any },
     ]
   },
   {
     id: 27,
     text: "Bagaimana caramu berpakaian saat acara formal?",
     answers: [
-      { text: "Jas atau kemeja rapi", scores: { normal: 5, jujur_cowok: 5, femboy: 0, femgirl: 0, abnormal: 0, jujur_cewek: 0 } as any },
-      { text: "Gaun yang cantik dan feminin", scores: { normal: 0, femgirl: 5, jujur_cewek: 5, femboy: 0, abnormal: 0, jujur_cowok: 0 } as any },
-      { text: "Kostum yang unik tapi tetap sopan", scores: { normal: 0, femboy: 5, abnormal: 3, femgirl: 0, jujur_cewek: 0, jujur_cowok: 0 } as any },
-      { text: "Apa saja yang nyaman dipakai", scores: { normal: 4, jujur_cowok: 2, jujur_cewek: 2, abnormal: 1, femboy: 0, femgirl: 0 } as any },
+      { text: "Jas atau kemeja rapi", scores: { normal: 100, jujur_cowok: 100, femboy: 0, tomboy: 0, abnormal: 0, jujur_cewek: 0 } as any },
+      { text: "Gaun yang cantik dan feminin", scores: { normal: 0, tomboy: 100, jujur_cewek: 100, femboy: 0, abnormal: 0, jujur_cowok: 0 } as any },
+      { text: "Kostum yang unik tapi tetap sopan", scores: { normal: 0, femboy: 100, abnormal: 60, tomboy: 0, jujur_cewek: 0, jujur_cowok: 0 } as any },
+      { text: "Apa saja yang nyaman dipakai", scores: { normal: 80, jujur_cowok: 40, jujur_cewek: 40, abnormal: 40, femboy: 0, tomboy: 0 } as any },
     ]
   },
   {
     id: 28,
     text: "Apa yang kamu lakukan saat merasa bosan?",
     answers: [
-      { text: "Scrolling media sosial tanpa henti", scores: { normal: 5, femboy: 2, femgirl: 2, abnormal: 0, jujur_cewek: 0, jujur_cowok: 0 } as any },
-      { text: "Tidur atau melamun", scores: { normal: 4, abnormal: 3, femboy: 2, femgirl: 0, jujur_cewek: 0, jujur_cowok: 0 } as any },
-      { text: "Mencari kesibukan baru atau belajar", scores: { normal: 5, jujur_cowok: 4, jujur_cewek: 4, femboy: 0, femgirl: 0, abnormal: 0 } as any },
-      { text: "Mengajak bicara benda mati", scores: { normal: 0, abnormal: 5, femboy: 0, femgirl: 0, jujur_cewek: 0, jujur_cowok: 0 } as any },
+      { text: "Scrolling media sosial tanpa henti", scores: { normal: 100, femboy: 40, tomboy: 40, abnormal: 0, jujur_cewek: 0, jujur_cowok: 0 } as any },
+      { text: "Tidur atau melamun", scores: { normal: 80, abnormal: 60, femboy: 40, tomboy: 0, jujur_cewek: 0, jujur_cowok: 0 } as any },
+      { text: "Mencari kesibukan baru atau belajar", scores: { normal: 100, jujur_cowok: 100, jujur_cewek: 100, femboy: 0, tomboy: 0, abnormal: 0 } as any },
+      { text: "Mengajak bicara benda mati", scores: { normal: 0, abnormal: 100, femboy: 0, tomboy: 0, jujur_cewek: 0, jujur_cowok: 0 } as any },
     ]
   },
   {
     id: 29,
     text: "Bagaimana caramu menunjukkan kasih sayang?",
     answers: [
-      { text: "Memberikan bantuan atau tindakan nyata", scores: { normal: 5, jujur_cowok: 5, femboy: 0, femgirl: 0, abnormal: 0, jujur_cewek: 0 } as any },
-      { text: "Memberikan hadiah atau kejutan manis", scores: { normal: 0, femgirl: 5, jujur_cewek: 5, femboy: 3, abnormal: 0, jujur_cowok: 0 } as any },
-      { text: "Melalui kata-kata pujian dan perhatian", scores: { normal: 4, jujur_cewek: 4, femboy: 4, femgirl: 4, abnormal: 0, jujur_cowok: 0 } as any },
-      { text: "Dengan cara yang aneh dan sulit dimengerti", scores: { normal: 0, abnormal: 5, femboy: 0, femgirl: 0, jujur_cewek: 0, jujur_cowok: 0 } as any },
+      { text: "Memberikan bantuan atau tindakan nyata", scores: { normal: 100, jujur_cowok: 100, femboy: 0, tomboy: 0, abnormal: 0, jujur_cewek: 0 } as any },
+      { text: "Memberikan hadiah atau kejutan manis", scores: { normal: 0, tomboy: 100, jujur_cewek: 100, femboy: 60, abnormal: 0, jujur_cowok: 0 } as any },
+      { text: "Melalui kata-kata pujian dan perhatian", scores: { normal: 80, jujur_cewek: 80, femboy: 80, tomboy: 80, abnormal: 0, jujur_cowok: 0 } as any },
+      { text: "Dengan cara yang aneh dan sulit dimengerti", scores: { normal: 0, abnormal: 100, femboy: 0, tomboy: 0, jujur_cewek: 0, jujur_cowok: 0 } as any },
     ]
   },
   {
     id: 30,
     text: "Apa yang kamu lakukan jika kamu bisa menjadi tidak terlihat selama satu hari?",
     answers: [
-      { text: "Membantu orang lain secara diam-diam", scores: { normal: 5, jujur_cowok: 4, jujur_cewek: 4, femboy: 0, femgirl: 0, abnormal: 0 } as any },
-      { text: "Masuk ke tempat-tempat yang dilarang", scores: { normal: 0, abnormal: 5, jujur_cowok: 3, femboy: 0, femgirl: 0, jujur_cewek: 0 } as any },
-      { text: "Mendengarkan apa yang orang katakan tentangku", scores: { normal: 3, femboy: 4, femgirl: 4, jujur_cewek: 3, abnormal: 0, jujur_cowok: 0 } as any },
-      { text: "Hanya ingin tahu rasanya jadi hantu", scores: { normal: 0, abnormal: 5, femboy: 0, femgirl: 0, jujur_cewek: 0, jujur_cowok: 0 } as any },
+      { text: "Membantu orang lain secara diam-diam", scores: { normal: 100, jujur_cowok: 80, jujur_cewek: 80, femboy: 0, tomboy: 0, abnormal: 0 } as any },
+      { text: "Masuk ke tempat-tempat yang dilarang", scores: { normal: 0, abnormal: 100, jujur_cowok: 60, femboy: 0, tomboy: 0, jujur_cewek: 0 } as any },
+      { text: "Mendengarkan apa yang orang katakan tentangku", scores: { normal: 60, femboy: 80, tomboy: 80, jujur_cewek: 60, abnormal: 0, jujur_cowok: 0 } as any },
+      { text: "Hanya ingin tahu rasanya jadi hantu", scores: { normal: 0, abnormal: 100, femboy: 0, tomboy: 0, jujur_cewek: 0, jujur_cowok: 0 } as any },
     ]
   }
 ];
@@ -515,13 +515,13 @@ export const PERSONALITY_RESULTS: Record<string, SurveyResult> = {
     color: "bg-pink-400",
     imageUrl: "https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?q=80&w=1000&auto=format&fit=crop"
   },
-  femgirl: {
-    category: 'femgirl',
-    title: "The Elegant Femgirl",
-    description: "Kamu sangat feminin, peduli dengan penampilan, dan memiliki aura yang anggun. Kamu suka hal-hal yang estetik dan cantik!",
-    tooltip: "Anggun, feminin, dan sangat peduli dengan estetika diri.",
-    color: "bg-rose-400",
-    imageUrl: "https://images.unsplash.com/photo-1578632292335-df3abbb0d586?q=80&w=1000&auto=format&fit=crop"
+  tomboy: {
+    category: 'tomboy',
+    title: "The Cool Tomboy",
+    description: "Kamu adalah cewek yang mandiri, tangguh, dan tidak takut untuk tampil apa adanya. Dengan gaya yang santai dan jiwa petualang, kamu memiliki pesona unik yang membuat orang lain merasa nyaman di dekatmu!",
+    tooltip: "Mandiri, tangguh, dan memiliki gaya yang santai serta berjiwa petualang.",
+    color: "bg-indigo-500",
+    imageUrl: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=1000&auto=format&fit=crop"
   },
   normal: {
     category: 'normal',

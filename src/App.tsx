@@ -34,7 +34,7 @@ export default function App() {
     pahit: 0,
     gurih: 0,
     femboy: 0,
-    femgirl: 0,
+    tomboy: 0,
     normal: 0,
     abnormal: 0,
     jujur_cewek: 0,
@@ -104,7 +104,7 @@ export default function App() {
 
   const winner = useMemo(() => {
     const categories = (surveyType === 'personality' 
-      ? ['femboy', 'femgirl', 'normal', 'abnormal', 'jujur_cewek', 'jujur_cowok'] 
+      ? ['femboy', 'tomboy', 'normal', 'abnormal', 'jujur_cewek', 'jujur_cowok'] 
       : ['manis', 'asin', 'pedas', 'asam', 'pahit', 'gurih']) as Category[];
     
     return categories.reduce((a, b) => scores[a] > scores[b] ? a : b);
@@ -133,7 +133,7 @@ export default function App() {
                 'savory and gourmet-themed';
       } else {
         trait = category === 'femboy' ? 'cute and soft aesthetic' :
-                category === 'femgirl' ? 'elegant and feminine' :
+                category === 'tomboy' ? 'cool and independent' :
                 category === 'normal' ? 'casual and modern' :
                 category === 'abnormal' ? 'chaotic and surreal' :
                 category === 'jujur_cewek' ? 'pure and honest girl' :
@@ -192,7 +192,7 @@ export default function App() {
       pahit: 0,
       gurih: 0,
       femboy: 0,
-      femgirl: 0,
+      tomboy: 0,
       normal: 0,
       abnormal: 0,
       jujur_cewek: 0,
@@ -489,7 +489,7 @@ export default function App() {
                   <div className="grid grid-cols-2 gap-6">
                     {(() => {
                       const categories = (surveyType === 'personality' 
-                        ? ['femboy', 'femgirl', 'normal', 'abnormal', 'jujur_cewek', 'jujur_cowok'] 
+                        ? ['femboy', 'tomboy', 'normal', 'abnormal', 'jujur_cewek', 'jujur_cowok'] 
                         : ['manis', 'asin', 'pedas', 'asam', 'pahit', 'gurih']) as Category[];
                       
                       // Squaring scores to amplify differences (Intensity)
@@ -572,7 +572,7 @@ export default function App() {
                       pahit: 0,
                       gurih: 0,
                       femboy: 0,
-                      femgirl: 0,
+                      tomboy: 0,
                       normal: 0,
                       abnormal: 0,
                       jujur_cewek: 0,
@@ -672,8 +672,7 @@ export default function App() {
       <footer className="w-full text-center py-12 px-4 mt-auto">
         <div className="max-w-md mx-auto bg-white/50 py-2 px-4 rounded-full border border-gray-100">
           <p className="text-[10px] font-mono text-gray-500 uppercase tracking-widest leading-relaxed">
-            Dibuat oleh <span className="font-bold text-black">VelixsCraftMCYT</span><br />
-            Didukung oleh lembaga data psikologi orang²
+            Survey Tentang dirimu di buat oleh <span className="font-bold text-black">@VelixsCraftMCYT</span>
           </p>
         </div>
       </footer>

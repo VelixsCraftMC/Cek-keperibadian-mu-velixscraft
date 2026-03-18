@@ -1,4 +1,4 @@
-export type PersonalityCategory = 'femboy' | 'femgirl' | 'normal' | 'abnormal' | 'jujur_cewek' | 'jujur_cowok';
+export type PersonalityCategory = 'femboy' | 'tomboy' | 'normal' | 'abnormal' | 'jujur_cewek' | 'jujur_cowok';
 export type TasteCategory = 'manis' | 'asin' | 'pedas' | 'asam' | 'pahit' | 'gurih';
 export type Category = PersonalityCategory | TasteCategory;
 
