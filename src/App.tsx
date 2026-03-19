@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { ChevronRight, ChevronLeft, RotateCcw, Sparkles, AlertCircle, User, Heart, Download, Camera, Loader2, Trophy, MessageSquare, Send, UserCircle } from 'lucide-react';
+import { ChevronRight, ChevronLeft, RotateCcw, Sparkles, AlertCircle, User, Heart, Download, Camera, Loader2, Trophy, MessageSquare, Send, UserCircle, Image as ImageIcon, Plus } from 'lucide-react';
 import { toPng } from 'html-to-image';
 import { GoogleGenAI } from "@google/genai";
 import { io, Socket } from 'socket.io-client';
@@ -13,16 +13,28 @@ const socket: Socket = io();
 export default function App() {
   const [currentStep, setCurrentStep] = useState<'start' | 'quiz' | 'result' | 'chat'>('start');
   const [surveyType, setSurveyType] = useState<'personality' | 'taste'>('personality');
-  const [messages, setMessages] = useState<any[]>([]);
+  const [messages, setMessages] = useState<any[]>(() => {
+    const cached = localStorage.getItem('chat_messages');
+    return cached ? JSON.parse(cached) : [];
+  });
+  const [typingUsers, setTypingUsers] = useState<string[]>([]);
+  const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const [newMessage, setNewMessage] = useState('');
   const [userName, setUserName] = useState<string>(() => localStorage.getItem('user_name') || 'Anonymous');
-  const [isEditingName, setIsEditingName] = useState(false);
+  const [profileImage, setProfileImage] = useState<string>(() => localStorage.getItem('user_profile') || '');
+  const [bgImage, setBgImage] = useState<string>(() => localStorage.getItem('app_bg') || '');
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [tempName, setTempName] = useState(userName);
+  const [tempProfile, setTempProfile] = useState(profileImage);
+  const [tempBg, setTempBg] = useState(bgImage);
   
   const [questionIndex, setQuestionIndex] = useState(0);
   const [isExporting, setIsExporting] = useState(false);
   const [isGeneratingImage, setIsGeneratingImage] = useState(false);
   const [generatedImageUrl, setGeneratedImageUrl] = useState<string | null>(null);
+  const [isCustomInputActive, setIsCustomInputActive] = useState(false);
+  const [customAnswer, setCustomAnswer] = useState('');
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
   const resultRef = useRef<HTMLDivElement>(null);
   const chatEndRef = useRef<HTMLDivElement>(null);
   
@@ -44,12 +56,42 @@ export default function App() {
 
   // Socket listeners
   useEffect(() => {
-    socket.on('init_messages', (initialMessages) => setMessages(initialMessages));
-    socket.on('new_message', (msg) => setMessages(prev => [...prev.slice(-49), msg]));
+    socket.on('init_messages', (initialMessages) => {
+      setMessages(initialMessages);
+      localStorage.setItem('chat_messages', JSON.stringify(initialMessages));
+    });
+    
+    socket.on('new_message', (msg) => {
+      setMessages(prev => {
+        const updated = [...prev.slice(-49), msg];
+        localStorage.setItem('chat_messages', JSON.stringify(updated));
+        return updated;
+      });
+    });
+
+    socket.on('typing', (data) => {
+      setTypingUsers(prev => {
+        if (prev.includes(data.userName)) return prev;
+        return [...prev, data.userName];
+      });
+    });
+
+    socket.on('stop_typing', (data) => {
+      setTypingUsers(prev => prev.filter(user => user !== data.userName));
+    });
+
+    // Cache Transfer: Sync across tabs
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'chat_messages' && e.newValue) {
+        setMessages(JSON.parse(e.newValue));
+      }
+    };
+    window.addEventListener('storage', handleStorageChange);
 
     return () => {
       socket.off('init_messages');
       socket.off('new_message');
+      window.removeEventListener('storage', handleStorageChange);
     };
   }, []);
 
@@ -66,20 +108,89 @@ export default function App() {
     const msg = {
       text: newMessage.trim(),
       userName: userName,
-      photoURL: `https://api.dicebear.com/7.x/avataaars/svg?seed=${userName}`,
+      photoURL: profileImage || `https://api.dicebear.com/7.x/avataaars/svg?seed=${userName}`,
     };
 
     socket.emit('send_message', msg);
     setNewMessage('');
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
+      typingTimeoutRef.current = null;
+    }
+    socket.emit('stop_typing', { userName });
   };
 
-  const handleSaveName = () => {
-    const trimmed = tempName.trim();
-    if (trimmed) {
-      setUserName(trimmed);
-      localStorage.setItem('user_name', trimmed);
-      setIsEditingName(false);
+  const handleTyping = (text: string) => {
+    setNewMessage(text);
+    
+    // Emit typing event
+    socket.emit('typing', { userName });
+
+    // Clear existing timeout
+    if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+
+    // Set new timeout to stop typing after 2 seconds of inactivity
+    typingTimeoutRef.current = setTimeout(() => {
+      socket.emit('stop_typing', { userName });
+      typingTimeoutRef.current = null;
+    }, 2000);
+  };
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>, type: 'profile' | 'bg' | 'chat') => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 2 * 1024 * 1024) {
+      alert('File terlalu besar! Maksimal 2MB.');
+      return;
     }
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const base64 = reader.result as string;
+      if (type === 'profile') setTempProfile(base64);
+      else if (type === 'bg') setTempBg(base64);
+      else if (type === 'chat') {
+        const msg = {
+          text: '',
+          image: base64,
+          userName: userName,
+          photoURL: profileImage || `https://api.dicebear.com/7.x/avataaars/svg?seed=${userName}`,
+        };
+        socket.emit('send_message', msg);
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleSaveSettings = () => {
+    const trimmedName = tempName.trim();
+    setUserName(trimmedName || 'Anonymous');
+    localStorage.setItem('user_name', trimmedName || 'Anonymous');
+    
+    setProfileImage(tempProfile);
+    localStorage.setItem('user_profile', tempProfile);
+    
+    setBgImage(tempBg);
+    localStorage.setItem('app_bg', tempBg);
+    
+    setIsSettingsOpen(false);
+  };
+
+  const submitCustomAnswer = () => {
+    if (!customAnswer.trim()) return;
+    
+    // Non-AI logic: Assign points to a random category to keep it "counted"
+    const categories = (surveyType === 'personality' 
+      ? ['femboy', 'tomboy', 'normal', 'abnormal', 'jujur_cewek', 'jujur_cowok'] 
+      : ['manis', 'asin', 'pedas', 'asam', 'pahit', 'gurih']) as Category[];
+    
+    const randomCat = categories[Math.floor(Math.random() * categories.length)];
+    const customScores = { [randomCat]: 50 } as any;
+    
+    handleAnswer(customScores);
+    setIsCustomInputActive(false);
+    setCustomAnswer('');
   };
 
   const shuffleArray = <T,>(array: T[]): T[] => {
@@ -99,15 +210,63 @@ export default function App() {
       answers: shuffleArray(q.answers)
     }));
     setShuffledQuestions(newQuestions);
+    setQuestionIndex(0);
+    setScores({
+      manis: 0, asin: 0, pedas: 0, asam: 0, pahit: 0, gurih: 0,
+      femboy: 0, tomboy: 0, normal: 0, abnormal: 0, jujur_cewek: 0, jujur_cowok: 0
+    });
+    setIsCustomInputActive(false);
+    setCustomAnswer('');
     setCurrentStep('quiz');
+  };
+
+  const analyzeCustomAnswer = async (text: string) => {
+    if (!text.trim() || isAnalyzing) return;
+    setIsAnalyzing(true);
+    try {
+      const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! });
+      const prompt = `Analyze this answer for a ${surveyType} survey: "${text}". 
+      Assign scores (0-100) for these categories: ${surveyType === 'personality' ? 'femboy, tomboy, normal, abnormal, jujur_cewek, jujur_cowok' : 'manis, asin, pedas, asam, pahit, gurih'}.
+      Be very careful to distinguish between 'pahit' (bitter) and 'manis' (sweet). If the user mentions coffee, dark chocolate, or traditional medicine without sugar, favor 'pahit'.
+      Return ONLY a JSON object with category names as keys and scores as values.`;
+
+      const response = await ai.models.generateContent({
+        model: 'gemini-2.5-flash',
+        contents: [{ parts: [{ text: prompt }] }],
+        config: { responseMimeType: 'application/json' }
+      });
+
+      const result = JSON.parse(response.text || '{}');
+      handleAnswer(result);
+      setIsCustomInputActive(false);
+      setCustomAnswer('');
+    } catch (error) {
+      console.error("AI Analysis failed:", error);
+      // Fallback: assign small random scores or just skip
+      handleAnswer({} as any);
+    } finally {
+      setIsAnalyzing(false);
+    }
   };
 
   const winner = useMemo(() => {
     const categories = (surveyType === 'personality' 
       ? ['femboy', 'tomboy', 'normal', 'abnormal', 'jujur_cewek', 'jujur_cowok'] 
-      : ['manis', 'asin', 'pedas', 'asam', 'pahit', 'gurih']) as Category[];
+      : ['pahit', 'pedas', 'asam', 'asin', 'gurih', 'manis']) as Category[];
     
-    return categories.reduce((a, b) => scores[a] > scores[b] ? a : b);
+    // Find the maximum score
+    const maxScore = Math.max(...categories.map(cat => scores[cat] || 0));
+    
+    // If all scores are 0, return a default or random
+    if (maxScore === 0) return categories[Math.floor(Math.random() * categories.length)];
+
+    // Find all categories with the maximum score
+    const winners = categories.filter(cat => (scores[cat] || 0) === maxScore);
+    
+    // Tie-breaking: Use a consistent but non-biased selection
+    // We reverse the categories array to give priority to the ones we put first in the list
+    // (In this case, 'pahit' is first, so it has priority over 'manis' if tied)
+    return winners[0];
   }, [scores, surveyType]);
 
   const result = useMemo(() => {
@@ -235,55 +394,54 @@ export default function App() {
   const progress = ((questionIndex + 1) / shuffledQuestions.length) * 100;
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#f5f5f5] text-[#1a1a1a] font-sans selection:bg-black selection:text-white">
-      {/* Header */}
-      <header className="fixed top-0 left-0 right-0 p-6 flex justify-between items-center z-50 pointer-events-none">
-        <div className="pointer-events-auto flex gap-2">
+    <div 
+      className="min-h-screen flex flex-col bg-[#F2F2F7] text-[#1C1C1E] font-sans selection:bg-[#007AFF] selection:text-white overflow-x-hidden bg-cover bg-center bg-no-repeat transition-all duration-700"
+      style={bgImage ? { backgroundImage: `url(${bgImage})` } : {}}
+    >
+      {/* iOS-style Header */}
+      <header className="fixed top-0 left-0 right-0 h-16 flex justify-between items-center px-6 z-50 backdrop-blur-xl bg-white/70 border-b border-[#C6C6C8]/30">
+        <div className="flex items-center gap-3">
+          {currentStep !== 'start' && (
+            <button 
+              onClick={() => currentStep === 'chat' ? setCurrentStep('start') : resetQuiz()}
+              className="p-2 -ml-2 rounded-full hover:bg-black/5 transition-colors active:scale-95"
+            >
+              <ChevronLeft className="w-6 h-6 text-[#007AFF]" />
+            </button>
+          )}
+          <h1 className="text-lg font-semibold tracking-tight">Survey App</h1>
+        </div>
+
+        <div className="flex items-center gap-3">
           {currentStep === 'start' && (
             <button 
               onClick={() => setCurrentStep('chat')}
-              className="p-3 rounded-full bg-white shadow-lg hover:scale-110 transition-transform focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              className="p-2 rounded-full hover:bg-black/5 transition-colors active:scale-95"
             >
-              <MessageSquare className="w-6 h-6 text-emerald-500" />
+              <MessageSquare className="w-6 h-6 text-[#007AFF]" />
             </button>
           )}
-        </div>
-
-        <div className="pointer-events-auto">
-          {isEditingName ? (
-            <div className="flex items-center gap-2 bg-white p-1 rounded-full shadow-lg">
-              <input 
-                type="text" 
-                value={tempName}
-                onChange={(e) => setTempName(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && handleSaveName()}
-                className="bg-transparent px-4 py-1 text-xs font-bold focus:outline-none w-32"
-                autoFocus
-                maxLength={15}
-              />
-              <button 
-                onClick={handleSaveName}
-                className="bg-black text-white px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest"
-              >
-                Save
-              </button>
-            </div>
-          ) : (
-            <button 
-              onClick={() => {
-                setTempName(userName);
-                setIsEditingName(true);
-              }}
-              className="flex items-center gap-2 bg-white px-4 py-2 rounded-full shadow-lg text-xs font-bold uppercase tracking-widest hover:scale-105 transition-transform"
-            >
-              <UserCircle className="w-4 h-4" />
-              {userName}
-            </button>
-          )}
+          
+          <button 
+            onClick={() => {
+              setTempName(userName);
+              setTempProfile(profileImage);
+              setTempBg(bgImage);
+              setIsSettingsOpen(true);
+            }}
+            className="flex items-center gap-2 bg-white px-3 py-1.5 rounded-full shadow-sm border border-[#C6C6C8]/20 text-sm font-medium hover:bg-gray-50 transition-colors active:scale-95"
+          >
+            {profileImage ? (
+              <img src={profileImage} className="w-5 h-5 rounded-full object-cover" alt="" />
+            ) : (
+              <UserCircle className="w-5 h-5 text-[#8E8E93]" />
+            )}
+            <span className="max-w-[80px] truncate">{userName}</span>
+          </button>
         </div>
       </header>
 
-      <main className="flex-1 max-w-2xl mx-auto w-full px-6 py-12 md:py-24">
+      <main className="flex-1 max-w-2xl mx-auto w-full px-6 pt-24 pb-32">
         <AnimatePresence mode="wait">
           {currentStep === 'start' && (
             <motion.div
@@ -291,32 +449,73 @@ export default function App() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
-              className="space-y-8 text-center"
+              className="space-y-12 text-center pt-8"
             >
-              <div className="inline-block p-4 rounded-full bg-white shadow-sm mb-4">
-                <Sparkles className="w-12 h-12 text-emerald-500" />
+              <div className="space-y-4">
+                <motion.div 
+                  animate={{ 
+                    scale: [1, 1.1, 1],
+                    rotate: [0, 5, -5, 0]
+                  }}
+                  transition={{ duration: 4, repeat: Infinity }}
+                  className="inline-block p-6 rounded-[2rem] bg-white shadow-2xl shadow-[#007AFF]/10 mb-4"
+                >
+                  <Sparkles className="w-16 h-16 text-[#007AFF]" />
+                </motion.div>
+                <h1 className="text-5xl font-extrabold tracking-tight text-[#1C1C1E]">
+                  Survey <br />
+                  <span className="text-[#007AFF]">Tentang Dirimu</span>
+                </h1>
+                <p className="text-[#8E8E93] text-lg font-medium max-w-xs mx-auto">
+                  Temukan sisi lain dari dirimu melalui survey interaktif kami.
+                </p>
               </div>
-              <h1 className="text-5xl md:text-7xl font-bold tracking-tighter leading-none">
-                SURVEY <br />
-                <span className="text-emerald-500 italic">INTERAKTIF</span>
-              </h1>
-              <p className="text-xl text-gray-500 max-w-md mx-auto">
-                Pilih test yang ingin kamu ikuti dan temukan jati dirimu yang sebenarnya!
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+
+              <div className="grid grid-cols-1 gap-4 pt-8">
                 <button
                   onClick={() => startQuiz('personality')}
-                  className="group relative inline-flex items-center justify-center px-8 py-4 font-bold text-white transition-all duration-200 bg-black rounded-full hover:bg-gray-800 focus:outline-none"
+                  className="group relative flex items-center justify-between p-6 bg-white rounded-3xl shadow-sm border border-[#C6C6C8]/20 hover:shadow-xl hover:shadow-[#007AFF]/10 transition-all active:scale-[0.98] overflow-hidden"
                 >
-                  Cek Kepribadian
-                  <ChevronRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                  <div className="absolute inset-0 bg-gradient-to-br from-[#007AFF]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <div className="flex items-center gap-4 relative z-10">
+                    <motion.div 
+                      whileHover={{ 
+                        scale: 1.2,
+                        rotate: [0, -10, 10, -10, 0],
+                      }}
+                      className="p-4 rounded-2xl bg-[#007AFF] text-white shadow-lg shadow-[#007AFF]/20"
+                    >
+                      <User className="w-8 h-8" />
+                    </motion.div>
+                    <div className="text-left">
+                      <h3 className="text-xl font-bold text-[#1C1C1E]">Cek Kepribadian</h3>
+                      <p className="text-sm text-[#8E8E93]">Kenali karakter aslimu</p>
+                    </div>
+                  </div>
+                  <ChevronRight className="w-6 h-6 text-[#C6C6C8] group-hover:text-[#007AFF] transition-colors relative z-10" />
                 </button>
+
                 <button
                   onClick={() => startQuiz('taste')}
-                  className="group relative inline-flex items-center justify-center px-8 py-4 font-bold text-black transition-all duration-200 bg-white border-2 border-black rounded-full hover:bg-gray-100 focus:outline-none"
+                  className="group relative flex items-center justify-between p-6 bg-white rounded-3xl shadow-sm border border-[#C6C6C8]/20 hover:shadow-xl hover:shadow-[#FF9500]/10 transition-all active:scale-[0.98] overflow-hidden"
                 >
-                  Cek Suka Rasa
-                  <ChevronRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                  <div className="absolute inset-0 bg-gradient-to-br from-[#FF9500]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <div className="flex items-center gap-4 relative z-10">
+                    <motion.div 
+                      whileHover={{ 
+                        scale: 1.2,
+                        y: [0, -5, 0],
+                      }}
+                      className="p-4 rounded-2xl bg-[#FF9500] text-white shadow-lg shadow-[#FF9500]/20"
+                    >
+                      <Heart className="w-8 h-8" />
+                    </motion.div>
+                    <div className="text-left">
+                      <h3 className="text-xl font-bold text-[#1C1C1E]">Cek Suka Rasa</h3>
+                      <p className="text-sm text-[#8E8E93]">Apa rasa favoritmu?</p>
+                    </div>
+                  </div>
+                  <ChevronRight className="w-6 h-6 text-[#C6C6C8] group-hover:text-[#FF9500] transition-colors relative z-10" />
                 </button>
               </div>
             </motion.div>
@@ -328,171 +527,174 @@ export default function App() {
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
-              className="space-y-12"
+              className="space-y-8"
             >
               <div className="space-y-4">
-                <div className="flex justify-between items-center">
-                  <button 
-                    onClick={resetQuiz}
-                    className="flex items-center gap-2 px-4 py-2 rounded-full bg-white shadow-sm border border-gray-100 text-[10px] font-bold uppercase tracking-widest text-gray-500 hover:text-black hover:shadow-md transition-all"
-                  >
-                    <ChevronLeft className="w-4 h-4" />
-                    Kembali
-                  </button>
-                  <div className="flex flex-col items-end">
-                    <span className="text-xs font-mono text-gray-400 uppercase tracking-widest">
-                      Pertanyaan {questionIndex + 1} / {shuffledQuestions.length}
+                <div className="flex justify-between items-end px-2">
+                  <div className="space-y-1">
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-[#8E8E93]">
+                      Question {questionIndex + 1} of {shuffledQuestions.length}
                     </span>
-                    <span className="text-xs font-bold text-emerald-500">
-                      {Math.round(progress)}%
-                    </span>
+                    <h2 className="text-2xl font-bold tracking-tight text-[#1C1C1E]">
+                      {shuffledQuestions[questionIndex].text}
+                    </h2>
                   </div>
                 </div>
-                <div className="h-1 w-full bg-gray-200 rounded-full overflow-hidden">
-                  <motion.div
-                    className="h-full bg-emerald-500"
+                <div className="h-2 w-full bg-[#E5E5EA] rounded-full overflow-hidden">
+                  <motion.div 
                     initial={{ width: 0 }}
                     animate={{ width: `${progress}%` }}
+                    className="h-full bg-[#007AFF] rounded-full"
                   />
                 </div>
               </div>
 
-              <div className="space-y-8">
-                <h2 className="text-3xl md:text-4xl font-bold leading-tight">
-                  {shuffledQuestions[questionIndex].text}
-                </h2>
-
-                <div className="grid gap-4">
-                  {shuffledQuestions[questionIndex].answers.map((answer, idx) => (
+              <div className="grid grid-cols-1 gap-3">
+                {!isCustomInputActive ? (
+                  <>
+                    {shuffledQuestions[questionIndex].answers.map((answer, idx) => (
+                      <button
+                        key={idx}
+                        onClick={() => handleAnswer(answer.scores)}
+                        className="w-full p-5 text-left bg-white/90 backdrop-blur-sm rounded-2xl border border-[#C6C6C8]/20 shadow-sm hover:border-[#007AFF] hover:bg-[#007AFF]/5 transition-all active:scale-[0.99] group"
+                      >
+                        <div className="flex items-center justify-between">
+                          <span className="text-base font-medium text-[#1C1C1E] group-hover:text-[#007AFF]">
+                            {answer.text}
+                          </span>
+                          <ChevronRight className="w-5 h-5 text-[#C6C6C8] group-hover:text-[#007AFF]" />
+                        </div>
+                      </button>
+                    ))}
                     <button
-                      key={idx}
-                      onClick={() => handleAnswer(answer.scores)}
-                      className="w-full text-left p-6 rounded-2xl bg-white border border-gray-200 hover:border-black hover:shadow-lg transition-all duration-200 group flex items-center justify-between"
+                      onClick={() => setIsCustomInputActive(true)}
+                      className="w-full p-5 text-left bg-white/90 backdrop-blur-sm rounded-2xl border border-dashed border-[#007AFF] hover:bg-[#007AFF]/5 transition-all active:scale-[0.99] group shadow-sm"
                     >
-                      <span className="text-lg font-medium">{answer.text}</span>
-                      <div className="w-8 h-8 rounded-full border border-gray-200 group-hover:bg-black group-hover:border-black transition-colors flex items-center justify-center">
-                        <ChevronRight className="w-4 h-4 text-transparent group-hover:text-white" />
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className="p-2 rounded-lg bg-[#007AFF]/10 text-[#007AFF]">
+                            <MessageSquare className="w-5 h-5" />
+                          </div>
+                          <span className="text-base font-semibold text-[#007AFF]">
+                            Jawaban Lainnya...
+                          </span>
+                        </div>
+                        <ChevronRight className="w-5 h-5 text-[#007AFF] opacity-50 group-hover:opacity-100" />
                       </div>
                     </button>
-                  ))}
-                </div>
+                  </>
+                ) : null}
               </div>
+
+              {/* Custom Answer Pop-up Modal */}
+              <AnimatePresence>
+                {isCustomInputActive && (
+                  <div className="fixed inset-0 z-[100] flex items-center justify-center p-6">
+                    <motion.div 
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      onClick={() => setIsCustomInputActive(false)}
+                      className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+                    />
+                    <motion.div 
+                      initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                      animate={{ opacity: 1, scale: 1, y: 0 }}
+                      exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                      className="relative w-full max-w-md bg-white rounded-[2.5rem] shadow-2xl p-8 space-y-6"
+                    >
+                      <div className="text-center space-y-2">
+                        <h3 className="text-xl font-bold text-[#1C1C1E]">Jawaban Kustom</h3>
+                        <p className="text-sm text-[#8E8E93]">Tuliskan apa yang ada di pikiranmu</p>
+                      </div>
+                      
+                      <textarea
+                        value={customAnswer}
+                        onChange={(e) => setCustomAnswer(e.target.value)}
+                        placeholder="Ketik jawabanmu di sini..."
+                        className="w-full p-5 bg-[#F2F2F7] rounded-2xl border-none focus:ring-2 focus:ring-[#007AFF] min-h-[150px] text-base transition-all"
+                        autoFocus
+                      />
+                      
+                      <div className="flex gap-3">
+                        <button
+                          onClick={() => setIsCustomInputActive(false)}
+                          className="flex-1 p-4 rounded-2xl bg-[#F2F2F7] text-[#1C1C1E] font-bold active:scale-95 transition-transform"
+                        >
+                          Batal
+                        </button>
+                        <button
+                          onClick={submitCustomAnswer}
+                          disabled={!customAnswer.trim()}
+                          className="flex-2 p-4 rounded-2xl bg-[#007AFF] text-white font-bold shadow-lg shadow-[#007AFF]/20 active:scale-95 transition-transform disabled:opacity-50 flex items-center justify-center gap-2"
+                        >
+                          <Send className="w-5 h-5" />
+                          Kirim Jawaban
+                        </button>
+                      </div>
+                    </motion.div>
+                  </div>
+                )}
+              </AnimatePresence>
             </motion.div>
           )}
 
           {currentStep === 'result' && (
             <motion.div
               key="result"
-              initial={{ opacity: 0, scale: 0.95 }}
+              initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               className="space-y-8"
             >
-              <div ref={resultRef} className="bg-white p-8 rounded-[32px] shadow-2xl space-y-8 border border-gray-100 overflow-hidden relative">
-                <div className="absolute top-0 right-0 p-8 opacity-5">
-                  <Camera className="w-32 h-32" />
-                </div>
-                
-                <div className="flex flex-col md:flex-row gap-8 items-center md:items-start">
-                  <div className="w-full md:w-1/2 aspect-square rounded-2xl overflow-hidden shadow-lg border-4 border-white bg-gray-50 flex items-center justify-center relative group">
+              <div 
+                ref={resultRef}
+                className="bg-white rounded-[2.5rem] p-8 shadow-2xl shadow-black/5 border border-[#C6C6C8]/10 space-y-8 overflow-hidden relative"
+              >
+                {/* Result Content */}
+                <div className="flex flex-col md:flex-row gap-8 items-center">
+                  <div className="w-full md:w-1/2 aspect-square rounded-3xl overflow-hidden bg-[#F2F2F7] relative group shadow-inner">
                     <img 
                       src={generatedImageUrl || result.imageUrl} 
-                      alt={result.title} 
+                      alt={result.title}
                       className={`w-full h-full object-cover transition-opacity duration-500 ${isGeneratingImage ? 'opacity-30' : 'opacity-100'}`}
                       referrerPolicy="no-referrer"
-                      onError={() => {
-                        if (generatedImageUrl) {
-                          setGeneratedImageUrl(result.imageUrl);
-                          setImageSourceUrl(null);
-                        }
-                      }}
                     />
                     
                     {isGeneratingImage && (
                       <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-white/50 backdrop-blur-sm">
-                        <Loader2 className="w-8 h-8 text-emerald-500 animate-spin" />
-                        <span className="text-[10px] font-mono text-gray-600 uppercase tracking-widest font-bold">Searching...</span>
+                        <Loader2 className="w-8 h-8 text-[#007AFF] animate-spin" />
+                        <span className="text-xs font-bold text-[#007AFF] uppercase tracking-widest">Generating...</span>
                       </div>
-                    )}
-
-                    {!generatedImageUrl && !isGeneratingImage && (
-                      <button 
-                        onClick={() => generateAnimeImage(winner)}
-                        className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-black/0 hover:bg-black/40 transition-all duration-300 opacity-0 hover:opacity-100 text-white"
-                      >
-                        <Sparkles className="w-8 h-8" />
-                        <span className="text-xs font-bold uppercase tracking-widest">Generate AI</span>
-                      </button>
                     )}
                   </div>
                   
-                  <div className="w-full md:w-1/2 space-y-6 text-center md:text-left">
-                    <div className="space-y-2">
-                      <div className="flex items-center gap-2 justify-center md:justify-start">
-                        <div className={`inline-flex p-3 rounded-xl ${result.color} text-white shadow-md mb-2`}>
-                          {surveyType === 'taste' ? (
-                            <>
-                              {result.category === 'manis' && <Heart className="w-6 h-6" />}
-                              {result.category === 'asin' && <Sparkles className="w-6 h-6" />}
-                              {result.category === 'pedas' && <AlertCircle className="w-6 h-6" />}
-                              {result.category === 'asam' && <Sparkles className="w-6 h-6" />}
-                              {result.category === 'pahit' && <User className="w-6 h-6" />}
-                              {result.category === 'gurih' && <Sparkles className="w-6 h-6" />}
-                            </>
-                          ) : (
-                            <User className="w-6 h-6" />
-                          )}
-                        </div>
-                        <div className="text-left">
-                          <div className="text-[10px] font-mono text-gray-400 uppercase tracking-widest">Username</div>
-                          <div className="text-sm font-bold text-black uppercase tracking-tighter">{userName || 'Anonim'}</div>
-                        </div>
+                  <div className="w-full md:w-1/2 space-y-4 text-center md:text-left">
+                    <div className="space-y-1">
+                      <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#F2F2F7] text-[#8E8E93] text-[10px] font-bold uppercase tracking-widest">
+                        <UserCircle className="w-3 h-3" />
+                        {userName || 'Anonim'}
                       </div>
-                      <h3 className="text-xs font-mono text-gray-400 uppercase tracking-widest">
-                        Hasil Analisis Kamu
-                      </h3>
-                      <h2 className="text-4xl font-black tracking-tighter uppercase leading-none animate-blink">
+                      <h2 className="text-4xl font-extrabold tracking-tight text-[#1C1C1E] leading-tight">
                         {result.title}
                       </h2>
                     </div>
-                    <p className="text-lg text-gray-600 leading-relaxed">
+                    <p className="text-[#48484A] text-base leading-relaxed font-medium">
                       {result.description}
                     </p>
-                    
-                    {imageSourceUrl && (
-                      <a 
-                        href={imageSourceUrl} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center text-[10px] font-mono text-emerald-500 hover:underline uppercase tracking-widest"
-                      >
-                        Source: {new URL(imageSourceUrl).hostname}
-                      </a>
-                    )}
-                    
-                    {!generatedImageUrl && !isGeneratingImage && (
-                      <button
-                        onClick={() => generateAnimeImage(winner)}
-                        className="inline-flex items-center text-xs font-bold text-emerald-500 hover:text-emerald-600 transition-colors uppercase tracking-widest"
-                      >
-                        <Sparkles className="mr-1.5 w-3.5 h-3.5" />
-                        Generate Karakter AI
-                      </button>
-                    )}
                   </div>
                 </div>
 
                 {/* Percentage Breakdown */}
-                <div className="pt-8 border-t border-gray-100 space-y-4">
-                  <h4 className="text-sm font-bold uppercase tracking-widest text-gray-400 text-center">
+                <div className="pt-8 border-t border-[#F2F2F7] space-y-6">
+                  <h4 className="text-xs font-bold uppercase tracking-widest text-[#8E8E93] text-center">
                     Detail Skor {surveyType === 'personality' ? 'Kepribadian' : 'Rasa'}
                   </h4>
-                  <div className="grid grid-cols-2 gap-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {(() => {
                       const categories = (surveyType === 'personality' 
                         ? ['femboy', 'tomboy', 'normal', 'abnormal', 'jujur_cewek', 'jujur_cowok'] 
                         : ['manis', 'asin', 'pedas', 'asam', 'pahit', 'gurih']) as Category[];
                       
-                      // Squaring scores to amplify differences (Intensity)
                       const squaredScores = categories.map(c => Math.pow(scores[c] || 0, 4));
                       const totalSquared = squaredScores.reduce((a, b) => a + b, 0);
 
@@ -502,27 +704,17 @@ export default function App() {
                         const resultsObj = surveyType === 'personality' ? PERSONALITY_RESULTS : TASTE_RESULTS;
                         
                         return (
-                          <div key={cat} className="group relative space-y-1.5">
-                            <div className={`flex justify-between text-xs font-bold uppercase tracking-tighter ${currentCat === winner ? 'text-black animate-blink' : 'text-gray-400'}`}>
-                              <div className="flex items-center gap-1">
-                                <span>{cat.replace('_', ' ')}</span>
-                                {resultsObj[cat].tooltip && (
-                                  <div className="relative group/tooltip">
-                                    <AlertCircle className="w-3 h-3 text-gray-300 cursor-help" />
-                                    <div className="absolute bottom-full left-0 mb-2 w-48 p-2 bg-black text-white text-[10px] rounded-lg opacity-0 group-hover/tooltip:opacity-100 transition-opacity pointer-events-none z-50 normal-case font-normal leading-tight shadow-xl">
-                                      {resultsObj[cat].tooltip}
-                                    </div>
-                                  </div>
-                                )}
-                              </div>
+                          <div key={cat} className="space-y-1.5">
+                            <div className="flex justify-between text-[10px] font-bold uppercase tracking-tight text-[#8E8E93]">
+                              <span>{cat.replace('_', ' ')}</span>
                               <span>{percentage}%</span>
                             </div>
-                            <div className={`h-1.5 w-full bg-gray-100 rounded-full overflow-hidden ${currentCat === winner ? 'ring-2 ring-black/10' : ''}`}>
+                            <div className="h-2 w-full bg-[#F2F2F7] rounded-full overflow-hidden">
                               <motion.div
                                 initial={{ width: 0 }}
                                 animate={{ width: `${percentage}%` }}
                                 transition={{ duration: 1, delay: 0.5 }}
-                                className={`h-full ${resultsObj[cat].color} ${currentCat === winner ? 'animate-blink' : ''}`}
+                                className={`h-full ${currentCat === winner ? 'bg-[#007AFF]' : 'bg-[#C6C6C8]'}`}
                               />
                             </div>
                           </div>
@@ -531,62 +723,42 @@ export default function App() {
                     })()}
                   </div>
                 </div>
-
-                <div className="text-center pt-4">
-                  <p className="text-xs font-mono text-gray-300 uppercase tracking-[0.2em]">
-                    VelixsCraftMCYT - {surveyType === 'personality' ? 'Cek Kepribadian' : 'Test Suka Rasa'}
-                  </p>
-                </div>
               </div>
 
-              <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-4">
+              <div className="flex flex-col gap-3 pt-4">
                 <button
                   onClick={downloadImage}
                   disabled={isExporting || isGeneratingImage}
-                  className="w-full sm:w-auto inline-flex items-center justify-center px-8 py-4 text-sm font-bold bg-black text-white rounded-full hover:bg-gray-800 transition-all duration-200 disabled:opacity-50"
+                  className="w-full p-5 bg-[#007AFF] text-white rounded-2xl font-bold shadow-lg shadow-[#007AFF]/20 active:scale-[0.98] transition-all flex items-center justify-center gap-2 disabled:opacity-50"
                 >
-                  {isExporting ? (
-                    <Sparkles className="mr-2 w-4 h-4 animate-spin" />
-                  ) : (
-                    <Download className="mr-2 w-4 h-4" />
-                  )}
+                  {isExporting ? <Loader2 className="w-5 h-5 animate-spin" /> : <Download className="w-5 h-5" />}
                   Simpan Hasil (Gambar)
                 </button>
                 
-                <button
-                  onClick={resetQuiz}
-                  className="w-full sm:w-auto inline-flex items-center justify-center px-8 py-4 text-sm font-bold border-2 border-black rounded-full hover:bg-black hover:text-white transition-all duration-200"
-                >
-                  <ChevronLeft className="mr-2 w-4 h-4" />
-                  Menu Utama
-                </button>
-
-                <button
-                  onClick={() => {
-                    setQuestionIndex(0);
-                    setScores({ 
-                      manis: 0, 
-                      asin: 0, 
-                      pedas: 0, 
-                      asam: 0,
-                      pahit: 0,
-                      gurih: 0,
-                      femboy: 0,
-                      tomboy: 0,
-                      normal: 0,
-                      abnormal: 0,
-                      jujur_cewek: 0,
-                      jujur_cowok: 0
-                    });
-                    setGeneratedImageUrl(null);
-                    setImageSourceUrl(null);
-                    setCurrentStep('quiz');
-                  }}
-                  className="w-full sm:w-auto inline-flex items-center justify-center px-8 py-4 text-sm font-bold border-2 border-gray-200 rounded-full hover:border-black transition-all duration-200"
-                >
-                  <RotateCcw className="mr-2 w-4 h-4" />
-                  Ulangi Test
-                </button>
+                <div className="grid grid-cols-2 gap-3">
+                  <button
+                    onClick={resetQuiz}
+                    className="p-5 bg-white text-[#1C1C1E] border border-[#C6C6C8]/20 rounded-2xl font-bold shadow-sm active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+                  >
+                    <ChevronLeft className="w-5 h-5" />
+                    Menu Utama
+                  </button>
+                  <button
+                    onClick={() => {
+                      setQuestionIndex(0);
+                      setScores({ 
+                        manis: 0, asin: 0, pedas: 0, asam: 0, pahit: 0, gurih: 0,
+                        femboy: 0, tomboy: 0, normal: 0, abnormal: 0, jujur_cewek: 0, jujur_cowok: 0
+                      });
+                      setGeneratedImageUrl(null);
+                      setCurrentStep('quiz');
+                    }}
+                    className="p-5 bg-white text-[#1C1C1E] border border-[#C6C6C8]/20 rounded-2xl font-bold shadow-sm active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+                  >
+                    <RotateCcw className="w-5 h-5" />
+                    Ulangi Test
+                  </button>
+                </div>
               </div>
             </motion.div>
           )}
@@ -594,86 +766,211 @@ export default function App() {
           {currentStep === 'chat' && (
             <motion.div
               key="chat"
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              className="space-y-8 h-[70vh] flex flex-col"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className="h-[75vh] flex flex-col bg-white rounded-[2.5rem] shadow-2xl border border-[#C6C6C8]/10 overflow-hidden"
             >
-              <div className="relative text-center space-y-2">
+              <div className="p-6 border-b border-[#F2F2F7] flex items-center justify-between bg-white/80 backdrop-blur-md sticky top-0 z-10">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-xl bg-[#34C759]/10 text-[#34C759]">
+                    <MessageSquare className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <h2 className="text-lg font-bold text-[#1C1C1E]">Global Chat</h2>
+                    <p className="text-[10px] text-[#8E8E93] font-bold uppercase tracking-widest">Live Discussion</p>
+                  </div>
+                </div>
                 <button 
                   onClick={() => setCurrentStep('start')}
-                  className="absolute left-0 top-0 p-3 rounded-full bg-white shadow-sm border border-gray-100 hover:scale-110 transition-transform"
+                  className="p-2 rounded-full hover:bg-black/5 transition-colors"
                 >
-                  <ChevronLeft className="w-5 h-5" />
+                  <ChevronLeft className="w-6 h-6 text-[#007AFF]" />
                 </button>
-                <MessageSquare className="w-12 h-12 text-emerald-500 mx-auto" />
-                <h2 className="text-4xl font-black tracking-tighter uppercase">Global Chat</h2>
-                <p className="text-xs font-mono text-gray-400 uppercase tracking-widest">Obrolan langsung tanpa database</p>
               </div>
 
-              <div className="flex-1 bg-white rounded-[32px] shadow-xl overflow-hidden border border-gray-100 flex flex-col">
-                <div className="flex-1 overflow-y-auto p-6 space-y-4">
-                  {messages.length === 0 ? (
-                    <div className="h-full flex items-center justify-center text-gray-400 font-mono text-xs uppercase tracking-widest">
-                      Belum ada obrolan...
-                    </div>
-                  ) : (
-                    messages.map((msg) => (
-                      <div 
-                        key={msg.id} 
-                        className={`flex gap-3 ${msg.userName === userName ? 'flex-row-reverse' : ''}`}
-                      >
-                        <img src={msg.photoURL} className="w-8 h-8 rounded-full shadow-sm" alt="" />
-                        <div className={`max-w-[80%] space-y-1 ${msg.userName === userName ? 'items-end' : ''}`}>
-                          <div className="text-[10px] font-bold text-gray-400 px-1">{msg.userName}</div>
-                          <div className={`p-3 rounded-2xl text-sm ${msg.userName === userName ? 'bg-emerald-500 text-white rounded-tr-none' : 'bg-gray-100 text-gray-800 rounded-tl-none'}`}>
-                            {msg.text}
-                          </div>
+              <div className="flex-1 overflow-y-auto p-6 space-y-4 bg-[#F2F2F7]/30">
+                {messages.length === 0 ? (
+                  <div className="h-full flex flex-col items-center justify-center text-[#8E8E93] space-y-2">
+                    <MessageSquare className="w-12 h-12 opacity-20" />
+                    <p className="text-sm font-medium">Belum ada obrolan...</p>
+                  </div>
+                ) : (
+                  messages.map((msg) => (
+                    <div 
+                      key={msg.id} 
+                      className={`flex gap-3 ${msg.userName === userName ? 'flex-row-reverse' : ''}`}
+                    >
+                      <img src={msg.photoURL} className="w-8 h-8 rounded-full shadow-sm" alt="" />
+                      <div className={`max-w-[80%] space-y-1 ${msg.userName === userName ? 'items-end' : ''}`}>
+                        <div className="text-[10px] font-bold text-[#8E8E93] px-1">{msg.userName}</div>
+                        <div className={`p-3 rounded-2xl text-sm ${msg.userName === userName ? 'bg-[#007AFF] text-white rounded-tr-none' : 'bg-white text-[#1C1C1E] rounded-tl-none shadow-sm border border-[#C6C6C8]/10'}`}>
+                          {msg.image && (
+                            <img 
+                              src={msg.image} 
+                              alt="Uploaded" 
+                              className="max-w-full rounded-lg mb-2 cursor-pointer hover:opacity-90 transition-opacity"
+                              onClick={() => window.open(msg.image, '_blank')}
+                            />
+                          )}
+                          {msg.text}
                         </div>
                       </div>
-                    ))
-                  )}
-                  <div ref={chatEndRef} />
-                </div>
-
-                <div className="p-4 border-t border-gray-50 bg-gray-50/50">
-                  <form onSubmit={handleSendMessage} className="flex gap-2">
-                    <input 
-                      type="text" 
-                      value={newMessage}
-                      onChange={(e) => setNewMessage(e.target.value)}
-                      placeholder="Ketik pesan..."
-                      className="flex-1 bg-white border border-gray-200 rounded-full px-6 py-3 text-sm focus:outline-none focus:border-emerald-500 transition-colors"
-                    />
-                    <button 
-                      type="submit"
-                      disabled={!newMessage.trim()}
-                      className="p-3 bg-emerald-500 text-white rounded-full hover:bg-emerald-600 transition-colors shadow-md focus:outline-none disabled:opacity-50"
-                    >
-                      <Send className="w-5 h-5" />
-                    </button>
-                  </form>
-                </div>
+                    </div>
+                  ))
+                )}
+                {typingUsers.length > 0 && (
+                  <div className="flex items-center gap-2 text-[10px] text-[#8E8E93] font-medium italic px-2">
+                    <div className="flex gap-1">
+                      <span className="w-1 h-1 bg-[#8E8E93] rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                      <span className="w-1 h-1 bg-[#8E8E93] rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                      <span className="w-1 h-1 bg-[#8E8E93] rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                    </div>
+                    {typingUsers.length === 1 
+                      ? `${typingUsers[0]} is typing...` 
+                      : `${typingUsers.length} people are typing...`}
+                  </div>
+                )}
+                <div ref={chatEndRef} />
               </div>
 
-              <div className="text-center">
-                <button
-                  onClick={() => setCurrentStep('start')}
-                  className="inline-flex items-center justify-center px-8 py-4 text-sm font-bold bg-black text-white rounded-full hover:bg-gray-800 transition-all duration-200"
-                >
-                  Kembali ke Beranda
-                </button>
+              <div className="p-4 bg-white border-t border-[#F2F2F7]">
+                <form onSubmit={handleSendMessage} className="flex gap-2 items-center">
+                  <label className="p-3 bg-[#F2F2F7] text-[#8E8E93] rounded-2xl hover:bg-[#E5E5EA] transition-all cursor-pointer active:scale-95">
+                    <ImageIcon className="w-5 h-5" />
+                    <input 
+                      type="file" 
+                      accept="image/*" 
+                      className="hidden" 
+                      onChange={(e) => handleFileUpload(e, 'chat')}
+                    />
+                  </label>
+                  <input 
+                    type="text" 
+                    value={newMessage}
+                    onChange={(e) => handleTyping(e.target.value)}
+                    placeholder="Ketik pesan..."
+                    className="flex-1 bg-[#F2F2F7] border-none rounded-2xl px-5 py-3 text-sm focus:ring-2 focus:ring-[#007AFF] transition-all"
+                  />
+                  <button 
+                    type="submit"
+                    disabled={!newMessage.trim()}
+                    className="p-3 bg-[#007AFF] text-white rounded-2xl hover:bg-[#007AFF]/90 transition-all shadow-lg shadow-[#007AFF]/20 disabled:opacity-50"
+                  >
+                    <Send className="w-5 h-5" />
+                  </button>
+                </form>
               </div>
             </motion.div>
           )}
         </AnimatePresence>
       </main>
 
-      <footer className="w-full text-center py-12 px-4 mt-auto">
-        <div className="max-w-md mx-auto bg-white/50 py-2 px-4 rounded-full border border-gray-100">
-          <p className="text-[10px] font-mono text-gray-500 uppercase tracking-widest leading-relaxed">
-            Survey Tentang dirimu di buat oleh <span className="font-bold text-black">@VelixsCraftMCYT</span>
+      {/* Settings Modal */}
+      <AnimatePresence>
+        {isSettingsOpen && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-6">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsSettingsOpen(false)}
+              className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+            />
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              className="relative w-full max-w-md bg-white rounded-[2.5rem] shadow-2xl p-8 space-y-6"
+            >
+              <div className="text-center space-y-2">
+                <h3 className="text-xl font-bold text-[#1C1C1E]">Pengaturan Profil</h3>
+                <p className="text-sm text-[#8E8E93]">Kustomisasi tampilan aplikasimu</p>
+              </div>
+              
+              <div className="space-y-4">
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-bold uppercase tracking-widest text-[#8E8E93] px-1">Nama Pengguna</label>
+                  <input 
+                    type="text" 
+                    value={tempName}
+                    onChange={(e) => setTempName(e.target.value)}
+                    placeholder="Masukkan nama..."
+                    className="w-full p-4 bg-[#F2F2F7] rounded-2xl border-none focus:ring-2 focus:ring-[#007AFF] transition-all"
+                  />
+                </div>
+                
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-bold uppercase tracking-widest text-[#8E8E93] px-1">Foto Profil</label>
+                  <div className="flex gap-2">
+                    <input 
+                      type="text" 
+                      value={tempProfile}
+                      onChange={(e) => setTempProfile(e.target.value)}
+                      placeholder="URL Foto Profil..."
+                      className="flex-1 p-4 bg-[#F2F2F7] rounded-2xl border-none focus:ring-2 focus:ring-[#007AFF] transition-all text-sm"
+                    />
+                    <label className="p-4 bg-[#F2F2F7] text-[#007AFF] rounded-2xl hover:bg-[#E5E5EA] transition-all cursor-pointer active:scale-95 flex items-center justify-center">
+                      <Camera className="w-5 h-5" />
+                      <input 
+                        type="file" 
+                        accept="image/*" 
+                        className="hidden" 
+                        onChange={(e) => handleFileUpload(e, 'profile')}
+                      />
+                    </label>
+                  </div>
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-bold uppercase tracking-widest text-[#8E8E93] px-1">Latar Belakang</label>
+                  <div className="flex gap-2">
+                    <input 
+                      type="text" 
+                      value={tempBg}
+                      onChange={(e) => setTempBg(e.target.value)}
+                      placeholder="URL Latar Belakang..."
+                      className="flex-1 p-4 bg-[#F2F2F7] rounded-2xl border-none focus:ring-2 focus:ring-[#007AFF] transition-all text-sm"
+                    />
+                    <label className="p-4 bg-[#F2F2F7] text-[#007AFF] rounded-2xl hover:bg-[#E5E5EA] transition-all cursor-pointer active:scale-95 flex items-center justify-center">
+                      <ImageIcon className="w-5 h-5" />
+                      <input 
+                        type="file" 
+                        accept="image/*" 
+                        className="hidden" 
+                        onChange={(e) => handleFileUpload(e, 'bg')}
+                      />
+                    </label>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="flex gap-3 pt-2">
+                <button
+                  onClick={() => setIsSettingsOpen(false)}
+                  className="flex-1 p-4 rounded-2xl bg-[#F2F2F7] text-[#1C1C1E] font-bold active:scale-95 transition-transform"
+                >
+                  Batal
+                </button>
+                <button
+                  onClick={handleSaveSettings}
+                  className="flex-2 p-4 rounded-2xl bg-[#007AFF] text-white font-bold shadow-lg shadow-[#007AFF]/20 active:scale-95 transition-transform"
+                >
+                  Simpan
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* iOS-style Tab Bar / Footer */}
+      <footer className="fixed bottom-0 left-0 right-0 h-20 bg-white/80 backdrop-blur-xl border-t border-[#C6C6C8]/30 flex items-center justify-center px-6 z-40">
+        <div className="max-w-md w-full flex flex-col items-center gap-1">
+          <p className="text-[10px] font-bold text-[#8E8E93] uppercase tracking-widest text-center">
+            Made with <Heart className="inline w-3 h-3 text-[#FF3B30] animate-pulse" /> by <span className="text-[#1C1C1E]">@VelixsCraftMCYT / @Muhammad Ilias</span>
           </p>
+          <p className="text-[8px] text-[#C6C6C8] font-medium uppercase tracking-[0.2em]">Crafted with Passion</p>
         </div>
       </footer>
     </div>

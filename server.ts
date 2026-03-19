@@ -39,6 +39,17 @@ async function startServer() {
       // Keep only last 50 messages
       if (messages.length > 50) messages.shift();
       io.emit("new_message", newMessage);
+      // Also stop typing when message is sent
+      socket.broadcast.emit("stop_typing", { userName: msg.userName });
+    });
+
+    // Handle typing indicator
+    socket.on("typing", (data) => {
+      socket.broadcast.emit("typing", data);
+    });
+
+    socket.on("stop_typing", (data) => {
+      socket.broadcast.emit("stop_typing", data);
     });
 
     socket.on("disconnect", () => {

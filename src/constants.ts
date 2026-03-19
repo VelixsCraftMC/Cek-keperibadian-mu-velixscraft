@@ -348,160 +348,160 @@ export const TASTE_QUESTIONS: Question[] = [
     id: 5,
     text: "Pilih buah favoritmu:",
     answers: [
-      { text: "Mangga matang yang manis", scores: { manis: 5, asin: 0, pedas: 0, asam: 0, pahit: 0, gurih: 0 } as any },
-      { text: "Jeruk nipis atau kedondong", scores: { manis: 0, asin: 0, pedas: 0, asam: 5, pahit: 0, gurih: 0 } as any },
-      { text: "Durian yang legit dan gurih", scores: { manis: 3, asin: 0, pedas: 0, asam: 0, pahit: 0, gurih: 5 } as any },
-      { text: "Pare (kalau dianggap buah)", scores: { manis: 0, asin: 0, pedas: 0, asam: 0, pahit: 5, gurih: 0 } as any },
+      { text: "Mangga matang yang manis", scores: { manis: 100, asin: 0, pedas: 0, asam: 0, pahit: 0, gurih: 0 } as any },
+      { text: "Jeruk nipis atau kedondong", scores: { manis: 0, asin: 0, pedas: 0, asam: 100, pahit: 0, gurih: 0 } as any },
+      { text: "Durian yang legit dan gurih", scores: { manis: 60, asin: 0, pedas: 0, asam: 0, pahit: 0, gurih: 100 } as any },
+      { text: "Pare (kalau dianggap buah)", scores: { manis: 0, asin: 0, pedas: 0, asam: 0, pahit: 100, gurih: 0 } as any },
     ]
   },
   {
     id: 6,
     text: "Bagaimana seleramu terhadap masakan Padang?",
     answers: [
-      { text: "Suka bumbunya yang gurih dan berempah", scores: { manis: 0, asin: 1, pedas: 2, asam: 0, pahit: 0, gurih: 5 } as any },
-      { text: "Suka sambal ijonya yang pedas", scores: { manis: 0, asin: 0, pedas: 5, asam: 0, pahit: 0, gurih: 2 } as any },
-      { text: "Suka rendangnya yang agak manis", scores: { manis: 4, asin: 0, pedas: 1, asam: 0, pahit: 0, gurih: 3 } as any },
-      { text: "Suka daun singkongnya yang agak pahit", scores: { manis: 0, asin: 0, pedas: 0, asam: 0, pahit: 4, gurih: 2 } as any },
+      { text: "Suka bumbunya yang gurih dan berempah", scores: { manis: 0, asin: 20, pedas: 40, asam: 0, pahit: 0, gurih: 100 } as any },
+      { text: "Suka sambal ijonya yang pedas", scores: { manis: 0, asin: 0, pedas: 100, asam: 0, pahit: 0, gurih: 40 } as any },
+      { text: "Suka rendangnya yang agak manis", scores: { manis: 80, asin: 0, pedas: 20, asam: 0, pahit: 0, gurih: 60 } as any },
+      { text: "Suka daun singkongnya yang agak pahit", scores: { manis: 0, asin: 0, pedas: 0, asam: 0, pahit: 80, gurih: 40 } as any },
     ]
   },
   {
     id: 7,
     text: "Apa sarapan idealmu?",
     answers: [
-      { text: "Bubur ayam dengan banyak kaldu", scores: { manis: 0, asin: 2, pedas: 0, asam: 0, pahit: 0, gurih: 5 } as any },
-      { text: "Roti bakar selai cokelat/strawberry", scores: { manis: 5, asin: 0, pedas: 0, asam: 0, pahit: 0, gurih: 0 } as any },
-      { text: "Nasi uduk yang gurih dan asin", scores: { manis: 0, asin: 4, pedas: 0, asam: 0, pahit: 0, gurih: 5 } as any },
-      { text: "Hanya minum jamu pahit", scores: { manis: 0, asin: 0, pedas: 0, asam: 0, pahit: 5, gurih: 0 } as any },
+      { text: "Bubur ayam dengan banyak kaldu", scores: { manis: 0, asin: 40, pedas: 0, asam: 0, pahit: 0, gurih: 100 } as any },
+      { text: "Roti bakar selai cokelat/strawberry", scores: { manis: 100, asin: 0, pedas: 0, asam: 0, pahit: 0, gurih: 0 } as any },
+      { text: "Nasi uduk yang gurih dan asin", scores: { manis: 0, asin: 80, pedas: 0, asam: 0, pahit: 0, gurih: 100 } as any },
+      { text: "Hanya minum jamu pahit", scores: { manis: 0, asin: 0, pedas: 0, asam: 0, pahit: 100, gurih: 0 } as any },
     ]
   },
   {
     id: 8,
     text: "Pilih jenis mie instan favoritmu:",
     answers: [
-      { text: "Mie goreng original (gurih)", scores: { manis: 1, asin: 2, pedas: 0, asam: 0, pahit: 0, gurih: 5 } as any },
-      { text: "Mie kuah soto (asam segar)", scores: { manis: 0, asin: 1, pedas: 1, asam: 5, pahit: 0, gurih: 2 } as any },
-      { text: "Mie pedas mampus", scores: { manis: 0, asin: 0, pedas: 5, asam: 0, pahit: 0, gurih: 1 } as any },
-      { text: "Mie goreng aceh (rempah kuat)", scores: { manis: 0, asin: 1, pedas: 3, asam: 0, pahit: 0, gurih: 5 } as any },
+      { text: "Mie goreng original (gurih)", scores: { manis: 20, asin: 40, pedas: 0, asam: 0, pahit: 0, gurih: 100 } as any },
+      { text: "Mie kuah soto (asam segar)", scores: { manis: 0, asin: 20, pedas: 20, asam: 100, pahit: 0, gurih: 40 } as any },
+      { text: "Mie pedas mampus", scores: { manis: 0, asin: 0, pedas: 100, asam: 0, pahit: 0, gurih: 20 } as any },
+      { text: "Mie goreng aceh (rempah kuat)", scores: { manis: 0, asin: 20, pedas: 60, asam: 0, pahit: 0, gurih: 100 } as any },
     ]
   },
   {
     id: 9,
     text: "Bagaimana pendapatmu tentang rujak?",
     answers: [
-      { text: "Suka bumbu kacangnya yang manis pedas", scores: { manis: 4, asin: 0, pedas: 4, asam: 0, pahit: 0, gurih: 2 } as any },
-      { text: "Suka buahnya yang asam-asam segar", scores: { manis: 0, asin: 0, pedas: 0, asam: 5, pahit: 0, gurih: 0 } as any },
-      { text: "Suka kalau ada tambahan garam", scores: { manis: 0, asin: 5, pedas: 0, asam: 0, pahit: 0, gurih: 1 } as any },
-      { text: "Tidak suka, terlalu campur aduk", scores: { manis: 0, asin: 0, pedas: 0, asam: 0, pahit: 2, gurih: 0 } as any },
+      { text: "Suka bumbu kacangnya yang manis pedas", scores: { manis: 80, asin: 0, pedas: 80, asam: 0, pahit: 0, gurih: 40 } as any },
+      { text: "Suka buahnya yang asam-asam segar", scores: { manis: 0, asin: 0, pedas: 0, asam: 100, pahit: 0, gurih: 0 } as any },
+      { text: "Suka kalau ada tambahan garam", scores: { manis: 0, asin: 100, pedas: 0, asam: 0, pahit: 0, gurih: 20 } as any },
+      { text: "Tidak suka, terlalu campur aduk", scores: { manis: 0, asin: 0, pedas: 0, asam: 0, pahit: 40, gurih: 0 } as any },
     ]
   },
   {
     id: 10,
     text: "Pilih dessert favoritmu:",
     answers: [
-      { text: "Ice cream vanilla/cokelat", scores: { manis: 5, asin: 0, pedas: 0, asam: 0, pahit: 0, gurih: 0 } as any },
-      { text: "Cheesecake (gurih asin)", scores: { manis: 2, asin: 3, pedas: 0, asam: 0, pahit: 0, gurih: 4 } as any },
-      { text: "Salad buah saus yogurt (asam)", scores: { manis: 2, asin: 0, pedas: 0, asam: 5, pahit: 0, gurih: 1 } as any },
-      { text: "Matcha asli yang pahit", scores: { manis: 1, asin: 0, pedas: 0, asam: 0, pahit: 5, gurih: 1 } as any },
+      { text: "Ice cream vanilla/cokelat", scores: { manis: 100, asin: 0, pedas: 0, asam: 0, pahit: 0, gurih: 0 } as any },
+      { text: "Cheesecake (gurih asin)", scores: { manis: 40, asin: 60, pedas: 0, asam: 0, pahit: 0, gurih: 80 } as any },
+      { text: "Salad buah saus yogurt (asam)", scores: { manis: 40, asin: 0, pedas: 0, asam: 100, pahit: 0, gurih: 20 } as any },
+      { text: "Matcha asli yang pahit", scores: { manis: 0, asin: 0, pedas: 0, asam: 0, pahit: 100, gurih: 20 } as any },
     ]
   },
   {
     id: 11,
     text: "Saat memasak sendiri, apa yang paling sering kamu cicipi?",
     answers: [
-      { text: "Apakah sudah cukup manis?", scores: { manis: 5, asin: 0, pedas: 0, asam: 0, pahit: 0, gurih: 0 } as any },
-      { text: "Apakah sudah cukup asin?", scores: { manis: 0, asin: 5, pedas: 0, asam: 0, pahit: 0, gurih: 0 } as any },
-      { text: "Apakah sudah cukup gurih/sedap?", scores: { manis: 0, asin: 1, pedas: 0, asam: 0, pahit: 0, gurih: 5 } as any },
-      { text: "Apakah sudah cukup pedas?", scores: { manis: 0, asin: 0, pedas: 5, asam: 0, pahit: 0, gurih: 0 } as any },
+      { text: "Apakah sudah cukup manis?", scores: { manis: 100, asin: 0, pedas: 0, asam: 0, pahit: 0, gurih: 0 } as any },
+      { text: "Apakah sudah cukup asin?", scores: { manis: 0, asin: 100, pedas: 0, asam: 0, pahit: 0, gurih: 0 } as any },
+      { text: "Apakah sudah cukup gurih/sedap?", scores: { manis: 0, asin: 20, pedas: 0, asam: 0, pahit: 0, gurih: 100 } as any },
+      { text: "Apakah sudah cukup pedas?", scores: { manis: 0, asin: 0, pedas: 100, asam: 0, pahit: 0, gurih: 0 } as any },
     ]
   },
   {
     id: 12,
     text: "Pilih aroma makanan yang paling menggoda:",
     answers: [
-      { text: "Aroma kue yang baru dipanggang", scores: { manis: 5, asin: 0, pedas: 0, asam: 0, pahit: 0, gurih: 0 } as any },
-      { text: "Aroma sate yang sedang dibakar", scores: { manis: 1, asin: 1, pedas: 0, asam: 0, pahit: 0, gurih: 5 } as any },
-      { text: "Aroma tumisan bawang dan terasi", scores: { manis: 0, asin: 2, pedas: 0, asam: 0, pahit: 0, gurih: 5 } as any },
-      { text: "Aroma jeruk nipis yang segar", scores: { manis: 0, asin: 0, pedas: 0, asam: 5, pahit: 0, gurih: 0 } as any },
+      { text: "Aroma kue yang baru dipanggang", scores: { manis: 100, asin: 0, pedas: 0, asam: 0, pahit: 0, gurih: 0 } as any },
+      { text: "Aroma sate yang sedang dibakar", scores: { manis: 20, asin: 20, pedas: 0, asam: 0, pahit: 0, gurih: 100 } as any },
+      { text: "Aroma tumisan bawang dan terasi", scores: { manis: 0, asin: 40, pedas: 0, asam: 0, pahit: 0, gurih: 100 } as any },
+      { text: "Aroma jeruk nipis yang segar", scores: { manis: 0, asin: 0, pedas: 0, asam: 100, pahit: 0, gurih: 0 } as any },
     ]
   },
   {
     id: 13,
     text: "Terakhir, rasa apa yang paling tidak bisa kamu tinggalkan?",
     answers: [
-      { text: "Rasa Manis (Mood booster)", scores: { manis: 5, asin: 0, pedas: 0, asam: 0, pahit: 0, gurih: 0 } as any },
-      { text: "Rasa Pedas (Penambah nafsu makan)", scores: { manis: 0, asin: 0, pedas: 5, asam: 0, pahit: 0, gurih: 0 } as any },
-      { text: "Rasa Gurih (Kenikmatan hakiki)", scores: { manis: 0, asin: 0, pedas: 0, asam: 0, pahit: 0, gurih: 5 } as any },
-      { text: "Rasa Asam (Kesegaran luar biasa)", scores: { manis: 0, asin: 0, pedas: 0, asam: 5, pahit: 0, gurih: 0 } as any },
+      { text: "Rasa Manis (Mood booster)", scores: { manis: 100, asin: 0, pedas: 0, asam: 0, pahit: 0, gurih: 0 } as any },
+      { text: "Rasa Pedas (Penambah nafsu makan)", scores: { manis: 0, asin: 0, pedas: 100, asam: 0, pahit: 0, gurih: 0 } as any },
+      { text: "Rasa Gurih (Kenikmatan hakiki)", scores: { manis: 0, asin: 0, pedas: 0, asam: 0, pahit: 0, gurih: 100 } as any },
+      { text: "Rasa Asam (Kesegaran luar biasa)", scores: { manis: 0, asin: 0, pedas: 0, asam: 100, pahit: 0, gurih: 0 } as any },
     ]
   },
   {
     id: 14,
     text: "Rasa apa yang paling kamu cari saat cuaca sedang dingin?",
     answers: [
-      { text: "Sup hangat yang sangat gurih", scores: { manis: 0, asin: 1, pedas: 0, asam: 0, pahit: 0, gurih: 5 } as any },
-      { text: "Cokelat panas yang manis", scores: { manis: 5, asin: 0, pedas: 0, asam: 0, pahit: 0, gurih: 0 } as any },
-      { text: "Wedang jahe yang pedas hangat", scores: { manis: 1, asin: 0, pedas: 5, asam: 0, pahit: 1, gurih: 0 } as any },
-      { text: "Kopi pahit untuk menghangatkan diri", scores: { manis: 0, asin: 0, pedas: 0, asam: 0, pahit: 5, gurih: 1 } as any },
+      { text: "Sup hangat yang sangat gurih", scores: { manis: 0, asin: 20, pedas: 0, asam: 0, pahit: 0, gurih: 100 } as any },
+      { text: "Cokelat panas yang manis", scores: { manis: 100, asin: 0, pedas: 0, asam: 0, pahit: 0, gurih: 0 } as any },
+      { text: "Wedang jahe yang pedas hangat", scores: { manis: 20, asin: 0, pedas: 100, asam: 0, pahit: 20, gurih: 0 } as any },
+      { text: "Kopi pahit untuk menghangatkan diri", scores: { manis: 0, asin: 0, pedas: 0, asam: 0, pahit: 100, gurih: 20 } as any },
     ]
   },
   {
     id: 15,
     text: "Saat cuaca sangat panas, apa yang paling menyegarkan bagimu?",
     answers: [
-      { text: "Es krim buah yang manis", scores: { manis: 5, asin: 0, pedas: 0, asam: 0, pahit: 0, gurih: 0 } as any },
-      { text: "Rujak cuka yang sangat asam", scores: { manis: 0, asin: 0, pedas: 1, asam: 5, pahit: 0, gurih: 0 } as any },
-      { text: "Minuman isotonik yang agak asin", scores: { manis: 0, asin: 5, pedas: 0, asam: 1, pahit: 0, gurih: 0 } as any },
-      { text: "Es kopi susu yang gurih", scores: { manis: 2, asin: 0, pedas: 0, asam: 0, pahit: 1, gurih: 4 } as any },
+      { text: "Es krim buah yang manis", scores: { manis: 100, asin: 0, pedas: 0, asam: 0, pahit: 0, gurih: 0 } as any },
+      { text: "Rujak cuka yang sangat asam", scores: { manis: 0, asin: 0, pedas: 20, asam: 100, pahit: 0, gurih: 0 } as any },
+      { text: "Minuman isotonik yang agak asin", scores: { manis: 0, asin: 100, pedas: 0, asam: 20, pahit: 0, gurih: 0 } as any },
+      { text: "Es kopi susu yang gurih", scores: { manis: 20, asin: 0, pedas: 0, asam: 0, pahit: 40, gurih: 100 } as any },
     ]
   },
   {
     id: 16,
     text: "Apa rasa camilan wajib saat menonton pertandingan olahraga?",
     answers: [
-      { text: "Kacang atom yang gurih", scores: { manis: 0, asin: 2, pedas: 0, asam: 0, pahit: 0, gurih: 5 } as any },
-      { text: "Kuaci yang asin", scores: { manis: 0, asin: 5, pedas: 0, asam: 0, pahit: 0, gurih: 1 } as any },
-      { text: "Cilok bumbu pedas", scores: { manis: 0, asin: 0, pedas: 5, asam: 0, pahit: 0, gurih: 2 } as any },
-      { text: "Donat mini yang manis", scores: { manis: 5, asin: 0, pedas: 0, asam: 0, pahit: 0, gurih: 0 } as any },
+      { text: "Kacang atom yang gurih", scores: { manis: 0, asin: 40, pedas: 0, asam: 0, pahit: 0, gurih: 100 } as any },
+      { text: "Kuaci yang asin", scores: { manis: 0, asin: 100, pedas: 0, asam: 0, pahit: 0, gurih: 20 } as any },
+      { text: "Cilok bumbu pedas", scores: { manis: 0, asin: 0, pedas: 100, asam: 0, pahit: 0, gurih: 40 } as any },
+      { text: "Donat mini yang manis", scores: { manis: 100, asin: 0, pedas: 0, asam: 0, pahit: 0, gurih: 0 } as any },
     ]
   },
   {
     id: 17,
     text: "Rasa apa yang membantumu lebih fokus saat belajar/bekerja?",
     answers: [
-      { text: "Permen karet rasa mint (segar)", scores: { manis: 2, asin: 0, pedas: 0, asam: 3, pahit: 0, gurih: 0 } as any },
-      { text: "Kopi hitam (pahit)", scores: { manis: 0, asin: 0, pedas: 0, asam: 0, pahit: 5, gurih: 1 } as any },
-      { text: "Camilan gurih (micin life)", scores: { manis: 0, asin: 1, pedas: 0, asam: 0, pahit: 0, gurih: 5 } as any },
-      { text: "Cokelat susu (manis)", scores: { manis: 5, asin: 0, pedas: 0, asam: 0, pahit: 0, gurih: 0 } as any },
+      { text: "Permen karet rasa mint (segar)", scores: { manis: 40, asin: 0, pedas: 0, asam: 60, pahit: 0, gurih: 0 } as any },
+      { text: "Kopi hitam (pahit)", scores: { manis: 0, asin: 0, pedas: 0, asam: 0, pahit: 100, gurih: 20 } as any },
+      { text: "Camilan gurih (micin life)", scores: { manis: 0, asin: 20, pedas: 0, asam: 0, pahit: 0, gurih: 100 } as any },
+      { text: "Cokelat susu (manis)", scores: { manis: 100, asin: 0, pedas: 0, asam: 0, pahit: 0, gurih: 0 } as any },
     ]
   },
   {
     id: 18,
     text: "Saat sedang stres, rasa apa yang menjadi pelarianmu?",
     answers: [
-      { text: "Makanan super pedas (biar berkeringat)", scores: { manis: 0, asin: 0, pedas: 5, asam: 0, pahit: 0, gurih: 1 } as any },
-      { text: "Kue-kue manis (sugar rush)", scores: { manis: 5, asin: 0, pedas: 0, asam: 0, pahit: 0, gurih: 0 } as any },
-      { text: "Gorengan yang asin dan gurih", scores: { manis: 0, asin: 3, pedas: 0, asam: 0, pahit: 0, gurih: 5 } as any },
-      { text: "Minuman asam yang segar", scores: { manis: 0, asin: 0, pedas: 0, asam: 5, pahit: 0, gurih: 0 } as any },
+      { text: "Makanan super pedas (biar berkeringat)", scores: { manis: 0, asin: 0, pedas: 100, asam: 0, pahit: 0, gurih: 20 } as any },
+      { text: "Kue-kue manis (sugar rush)", scores: { manis: 100, asin: 0, pedas: 0, asam: 0, pahit: 0, gurih: 0 } as any },
+      { text: "Gorengan yang asin dan gurih", scores: { manis: 0, asin: 60, pedas: 0, asam: 0, pahit: 0, gurih: 100 } as any },
+      { text: "Minuman asam yang segar", scores: { manis: 0, asin: 0, pedas: 0, asam: 100, pahit: 0, gurih: 0 } as any },
     ]
   },
   {
     id: 19,
     text: "Rasa apa yang paling dominan saat kumpul keluarga besar?",
     answers: [
-      { text: "Opor atau Rendang yang gurih", scores: { manis: 0, asin: 1, pedas: 1, asam: 0, pahit: 0, gurih: 5 } as any },
-      { text: "Aneka kue basah yang manis", scores: { manis: 5, asin: 0, pedas: 0, asam: 0, pahit: 0, gurih: 0 } as any },
-      { text: "Asinan buah yang asam segar", scores: { manis: 1, asin: 0, pedas: 0, asam: 5, pahit: 0, gurih: 0 } as any },
-      { text: "Sambal goreng yang pedas", scores: { manis: 0, asin: 0, pedas: 5, asam: 0, pahit: 0, gurih: 2 } as any },
+      { text: "Opor atau Rendang yang gurih", scores: { manis: 0, asin: 20, pedas: 20, asam: 0, pahit: 0, gurih: 100 } as any },
+      { text: "Aneka kue basah yang manis", scores: { manis: 100, asin: 0, pedas: 0, asam: 0, pahit: 0, gurih: 0 } as any },
+      { text: "Asinan buah yang asam segar", scores: { manis: 20, asin: 0, pedas: 0, asam: 100, pahit: 0, gurih: 0 } as any },
+      { text: "Sambal goreng yang pedas", scores: { manis: 0, asin: 0, pedas: 100, asam: 0, pahit: 0, gurih: 40 } as any },
     ]
   },
   {
     id: 20,
     text: "Jika sedang kencan, rasa apa yang ingin kamu bagi bersama pasangan?",
     answers: [
-      { text: "Dessert manis yang romantis", scores: { manis: 5, asin: 0, pedas: 0, asam: 0, pahit: 0, gurih: 0 } as any },
-      { text: "Pasta atau Pizza yang gurih", scores: { manis: 0, asin: 2, pedas: 0, asam: 0, pahit: 0, gurih: 5 } as any },
-      { text: "Makanan pedas biar makin seru", scores: { manis: 0, asin: 0, pedas: 5, asam: 0, pahit: 0, gurih: 1 } as any },
-      { text: "Sushi dengan wasabi yang menyengat", scores: { manis: 0, asin: 1, pedas: 3, asam: 0, pahit: 2, gurih: 4 } as any },
+      { text: "Dessert manis yang romantis", scores: { manis: 100, asin: 0, pedas: 0, asam: 0, pahit: 0, gurih: 0 } as any },
+      { text: "Pasta atau Pizza yang gurih", scores: { manis: 0, asin: 40, pedas: 0, asam: 0, pahit: 0, gurih: 100 } as any },
+      { text: "Makanan pedas biar makin seru", scores: { manis: 0, asin: 0, pedas: 100, asam: 0, pahit: 0, gurih: 20 } as any },
+      { text: "Sushi dengan wasabi yang menyengat", scores: { manis: 0, asin: 20, pedas: 40, asam: 0, pahit: 80, gurih: 60 } as any },
     ]
   }
 ];
